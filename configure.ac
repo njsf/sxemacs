@@ -3053,8 +3053,8 @@ if test "$with_media_ffmpeg" != "no"; then
 
 	if test "$have_media_ffmpeg" = "yes"; then
 		AC_MSG_RESULT([yes])
-		FFMPEG_LIBS=`$PKG_CONFIG --libs libavformat`
-		FFMPEG_CPPFLAGS=`$PKG_CONFIG --cflags libavformat`
+		FFMPEG_LIBS=`$PKG_CONFIG --libs libavformat libavcodec`
+		FFMPEG_CPPFLAGS=`$PKG_CONFIG --cflags libavformat libavcodec`
 		SXE_PREPEND($FFMPEG_LIBS, MM_LIBS)
 		SXE_PREPEND_UNDUP($FFMPEG_CPPFLAGS, MM_CPPFLAGS)
 		SXE_ADD_MM_OBJS([media-ffmpeg.o])
