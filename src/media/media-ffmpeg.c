@@ -46,7 +46,9 @@ static AVFormatContext *media_ffmpeg_open_file(const char*);
 AVFormatContext *media_ffmpeg_open_data(char*, size_t);
 
 static void media_ffmpeg_analyse_audio(media_substream*, AVFormatContext*, int);
+#if 0
 static void media_ffmpeg_analyse_video(media_substream*, AVFormatContext*, int);
+#endif
 
 #define MYSELF MDRIVER_FFMPEG
 
@@ -435,9 +437,10 @@ media_ffmpeg_analyse_audio(media_substream *mss, AVFormatContext *avfc, int st)
 
 	/* now assign */
 	media_substream_type_properties(mss).aprops = mtap;
-	media_substream_data(mss) = (void*)st;
+	media_substream_data(mss) = &st;
 }
 
+#if 0
 static void
 media_ffmpeg_analyse_video(media_substream *mss, AVFormatContext *avfc, int st)
 {
@@ -479,7 +482,13 @@ media_ffmpeg_analyse_video(media_substream *mss, AVFormatContext *avfc, int st)
 	media_substream_type_properties(mss).vprops = mtvp;
 	media_substream_data(mss) = (void*)st;
 }
-
+#endif
+int sy_do_nothing(int a);
+int
+sy_do_nothing(int a)
+{
+	return 0;
+}
 /* main analysis function */
 static ms_driver_data_t
 media_ffmpeg_open(Lisp_Media_Stream *ms)
@@ -500,6 +509,9 @@ media_ffmpeg_open(Lisp_Media_Stream *ms)
 		mkind_file_properties *mkfp = NULL;
 		const char *file;
 		int file_len = 0;
+
+		/* this is complete fucking bullshit */
+		sy_do_nothing(file_len);
 
 		/* open the file */
 		mkfp = media_stream_kind_properties(ms).fprops;
@@ -551,7 +563,7 @@ media_ffmpeg_open(Lisp_Media_Stream *ms)
 			    avcc->codec_id != CODEC_ID_NONE &&
 			    avcc->codec_type != AVMEDIA_TYPE_DATA &&
 			    (avc = avcodec_find_decoder(avcc->codec_id)) &&
-			    (avc && (avcodec_open(avcc, avc) >= 0))) {
+			    (avc && (avcodec_open2(avcc, avc, NULL) >= 0))) {
 
 				/* create a substream */
 				mss = make_media_substream_append(ms);
@@ -560,7 +572,7 @@ media_ffmpeg_open(Lisp_Media_Stream *ms)
 				case AVMEDIA_TYPE_VIDEO:
 					/* assign substream props */
 					media_substream_type(mss) = MTYPE_VIDEO;
-					media_ffmpeg_analyse_video(mss, avfc, st);
+					/* media_ffmpeg_analyse_video(mss, avfc, st); */
 					break;
 				case AVMEDIA_TYPE_AUDIO:
 					/* assign substream props */
@@ -633,7 +645,7 @@ media_ffmpeg_read(media_substream *mss, void *outbuf, size_t length)
 	AVFormatContext *avfc;
 	AVStream *avst;
 	AVCodecContext *avcc;
-	AVCodec *avc;
+	/* AVCodec *avc; */
 	AVPacket pkt;
 	/* buffering */
 	/* the size we present here, is _not_ the size we want, however
@@ -658,7 +670,7 @@ media_ffmpeg_read(media_substream *mss, void *outbuf, size_t length)
 	si = (long int)mss->substream_data;
 	avst = avfc->streams[si];
 	avcc = avst->codec;
-	avc = avcc->codec;
+	/* avc = avcc->codec; */
 
 	/* unpack the substream */
 	if ((mtap = media_substream_type_properties(mss).aprops) == NULL) {
@@ -699,6 +711,9 @@ media_ffmpeg_read(media_substream *mss, void *outbuf, size_t length)
 		dec = pkt.size;
 		/* decode the demuxed packet */
 		int got_frame = 0;
+
+		sy_do_nothing(declen);
+
 		declen = avcodec_decode_audio4(
 			avcc, (void*)((char*)outbuf+bufseek),
 			&got_frame, &pkt);
@@ -910,10 +925,11 @@ typedef struct VideoState {
 
 /* since we have only one decoding thread, we can use a global
    variable instead of a thread local variable */
-static VideoState *global_video_state;
+/* static VideoState *global_video_state; */
 AVPacket flush_pkt;
 
 /* packet queue handling */
+#if 0
 static void
 packet_queue_init(PacketQueue *q)
 {
@@ -988,7 +1004,7 @@ packet_queue_abort(PacketQueue *q)
 	SXE_SEMAPH_SIGNAL(&q->sem);
 	SXE_SEMAPH_UNLOCK(&q->sem);
 }
-
+#endif
 /* return < 0 if aborted, 0 if no packet and > 0 if packet.  */
 static int
 packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
@@ -1030,8 +1046,8 @@ packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
 	return ret;
 }
 
-static uint64_t global_video_pkt_pts = AV_NOPTS_VALUE;
-
+/* static uint64_t global_video_pkt_pts = AV_NOPTS_VALUE; */
+#if 0
 static int
 my_get_buffer(struct AVCodecContext *c, AVFrame *pic)
 {
@@ -1048,7 +1064,6 @@ my_release_buffer(struct AVCodecContext *c, AVFrame *pic)
 	if(pic) av_freep(&pic->opaque);
 	avcodec_default_release_buffer(c, pic);
 }
-
 
 static int
 stream_component_open(VideoState *is, int stream_index, Lisp_Media_Stream *ms)
@@ -1101,7 +1116,7 @@ stream_component_open(VideoState *is, int stream_index, Lisp_Media_Stream *ms)
 #endif
 	enc->error_concealment = 3; /* error_concealment; */
 	if (!codec ||
-	    avcodec_open(enc, codec) < 0)
+	    avcodec_open2(enc, codec, NULL) < 0)
 		return -1;
 	if (1 /* thread_count */ > 1)
 		avcodec_thread_init(enc, 1 /*thread_count*/);
@@ -1244,7 +1259,7 @@ dump_stream_info(const AVFormatContext *s)
 		fprintf(stderr, "%s: %s\n", tag->key, tag->value);
 	}
 }
-
+#endif
 enum {
 	AV_SYNC_AUDIO_MASTER, /* default choice */
 	AV_SYNC_VIDEO_MASTER,
@@ -1630,7 +1645,7 @@ Lisp_Object
 media_ffmpeg_available_formats(void)
 {
 	Lisp_Object formats;
-	AVInputFormat *avif;
+	AVInputFormat *avif = NULL;
 
 	formats = Qnil;
 
