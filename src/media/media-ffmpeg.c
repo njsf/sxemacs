@@ -76,6 +76,7 @@ DEFINE_MEDIA_DRIVER_CUSTOM(media_ffmpeg,
 			   media_ffmpeg_read, NULL,
 			   media_ffmpeg_rewind, NULL);
 
+#if 0
 DECLARE_MEDIA_DRIVER_OPEN_METH(new_media_ffmpeg);
 DECLARE_MEDIA_DRIVER_READ_METH(new_media_ffmpeg);
 DECLARE_MEDIA_DRIVER_REWIND_METH(new_media_ffmpeg);
@@ -85,6 +86,7 @@ DEFINE_MEDIA_DRIVER_CUSTOM(new_media_ffmpeg,
 			   NULL, NULL,
 			   new_media_ffmpeg_read, NULL,
 			   new_media_ffmpeg_rewind, NULL);
+#endif
 
 
 static int
@@ -141,6 +143,7 @@ char *media_ffmpeg_streaminfo(Lisp_Media_Stream *ms)
 	if (media_stream_driver(ms) != MYSELF || avfc == NULL)
 		return out;
 
+#if 0				/* dunno what to do with this stuff now */
 	if (avfc->author && *avfc->author) {
 		strncat(out, " :author \"", chars_left);
 		chars_left -= 10;
@@ -163,6 +166,7 @@ char *media_ffmpeg_streaminfo(Lisp_Media_Stream *ms)
 		chars_left -= 7;
 		strncat(out, year, chars_left);
 	}
+#endif
 
 	return out;
 }
@@ -176,17 +180,10 @@ media_ffmpeg_print(Lisp_Object ms, Lisp_Object pcfun, int ef)
 static AVFormatContext*
 media_ffmpeg_open_file(const char *file)
 {
-#if defined HAVE_AVFORMAT_ALLOC_CONTEXT
 	AVFormatContext *avfc = avformat_alloc_context();
-#elif defined HAVE_AV_ALLOC_FORMAT_CONTEXT
-	/* deprecated already, but `people' like Horst still use this */
-	AVFormatContext *avfc = av_alloc_format_context();
-#else
-# error "Your ffmpeg library is too old.  Adopt a new one."
-#endif	/* HAVE_AVFORMAT_ALLOC_CONTEXT */
 
 	/* open the file */
-	if (av_open_input_file(&avfc, file, NULL, 0, NULL) < 0) {
+	if (avformat_open_input(&avfc, file, NULL, NULL) < 0) {
 		FFMPEG_DEBUG_AVF("opening file failed.\n");
 		if (avfc)
 			xfree(avfc);
@@ -194,9 +191,9 @@ media_ffmpeg_open_file(const char *file)
 	}
 
 	/* Retrieve stream information */
-	if (av_find_stream_info(avfc) < 0) {
+	if (avformat_find_stream_info(avfc, NULL) < 0) {
 		FFMPEG_DEBUG_AVS("opening stream inside file failed.\n");
-		av_close_input_file(avfc);
+		avformat_close_input(&avfc);
 		if (avfc)
 			xfree(avfc);
 		return NULL;
@@ -206,6 +203,7 @@ media_ffmpeg_open_file(const char *file)
 }
 
 
+#if 0				/* no idea wtf to do with this shit */
 static int
 media_ffmpeg_vio_open(URLContext *h, const char *filename, int flags)
 {
@@ -279,6 +277,7 @@ static URLProtocol media_ffmpeg_protocol = {
 	media_ffmpeg_vio_seek,
 	media_ffmpeg_vio_close,
 };
+#endif
 
 /** Size of probe buffer, for guessing file type from file contents. */
 #define PROBE_BUF_MIN 2048
@@ -287,28 +286,12 @@ static URLProtocol media_ffmpeg_protocol = {
 AVFormatContext*
 media_ffmpeg_open_data(char *data, size_t size)
 {
-#if defined HAVE_AVFORMAT_ALLOC_CONTEXT
 	AVFormatContext *avfc = avformat_alloc_context();
-#elif defined HAVE_AV_ALLOC_FORMAT_CONTEXT
-	/* deprecated already, but `people' like Horst still use this */
-	AVFormatContext *avfc = av_alloc_format_context();
-#else
-# error "Your ffmpeg library is too old.  Adopt a new one."
-#endif	/* HAVE_AVFORMAT_ALLOC_CONTEXT */
 	AVProbeData *pd = NULL;
-	ByteIOContext *bioctx = NULL;
+	AVIOContext *bioctx = NULL;
 	AVInputFormat *fmt = NULL;
 	char file[] = "SXEmff:SXEmacs.mp3\000";
 	media_data *sd = NULL;
-
-	/* register our virtual i/o */
-#if defined HAVE_AV_REGISTER_PROTOCOL
-	av_register_protocol(&media_ffmpeg_protocol);
-#elif defined HAVE_REGISTER_PROTOCOL
-	register_protocol(&media_ffmpeg_protocol);
-#else
-# error "Get a recent ffmpeg or get a life."
-#endif
 
 	/* initialise our media_data */
 	sd = xnew_and_zero(media_data);
@@ -317,14 +300,19 @@ media_ffmpeg_open_data(char *data, size_t size)
 	sd->data = data;
 
 	/* register ffmpeg byteio */
-	bioctx = xnew_and_zero(ByteIOContext);
+	bioctx = xnew_and_zero(AVIOContext);
+#if 0
 #if defined FFMPEG_URL_FOPEN_BIOCTX_STAR_STAR
 	url_fopen(&bioctx, file, URL_RDONLY);
 #elif defined FFMPEG_URL_FOPEN_BIOCTX_STAR
 	url_fopen(bioctx, file, URL_RDONLY);
 #endif
+#endif
+	avio_open(&bioctx, file, AVIO_FLAG_READ);
 	/* erm, register us at the byteio context */
+#if 0
 	((URLContext*)(bioctx->opaque))->priv_data = sd;
+#endif
 
 	/* take a probe */
 	pd = xnew_and_zero(AVProbeData);
@@ -346,7 +334,7 @@ media_ffmpeg_open_data(char *data, size_t size)
 	}
 
 	/* open the file */
-	if (av_open_input_stream(&avfc, bioctx, file, fmt, NULL) < 0) {
+	if (avformat_open_input(&avfc, file, fmt, NULL) < 0) {
 		xfree(pd);
 		xfree(bioctx);
 		xfree(sd);
@@ -355,7 +343,7 @@ media_ffmpeg_open_data(char *data, size_t size)
 	}
 
 	/* Retrieve stream information */
-	if (av_find_stream_info(avfc) < 0) {
+	if (avformat_find_stream_info(avfc, NULL) < 0) {
 		xfree(pd);
 		xfree(bioctx);
 		xfree(sd);
@@ -373,7 +361,7 @@ media_ffmpeg_close(ms_driver_data_t data)
 	FFMPEG_DEBUG_AVF("closing AVFormatContext: 0x%lx\n",
 			 (long unsigned int)avfc);
 	if (avfc && avfc->iformat)
-		av_close_input_file(avfc);
+		avformat_close_input(&avfc);
 }
 
 static void
@@ -410,34 +398,34 @@ media_ffmpeg_analyse_audio(media_substream *mss, AVFormatContext *avfc, int st)
 
 		/* samplewidth and framesize */
 		switch (avcc->sample_fmt) {
-		case SAMPLE_FMT_U8:
+		case AV_SAMPLE_FMT_U8:
 			mtap->samplewidth = 8;
 			mtap->framesize = mtap->channels * 1;
 			mtap->msf = sxe_msf_U8;
 			break;
-		case SAMPLE_FMT_S16:
+		case AV_SAMPLE_FMT_S16:
 			mtap->samplewidth = 16;
 			mtap->framesize = mtap->channels * 2;
 			mtap->msf = sxe_msf_S16;
 			break;
-#if defined SAMPLE_FMT_S24
-		case SAMPLE_FMT_S24:
+#if defined AV_SAMPLE_FMT_S24
+		case AV_SAMPLE_FMT_S24:
 			mtap->samplewidth = 32;
 			mtap->framesize = mtap->channels * 4;
 			mtap->msf = sxe_msf_S24;
 			break;
 #endif	/* SAMPLE_FMT_S24 */
-		case SAMPLE_FMT_S32:
+		case AV_SAMPLE_FMT_S32:
 			mtap->samplewidth = 32;
 			mtap->framesize = mtap->channels * 4;
 			mtap->msf = sxe_msf_S32;
 			break;
-		case SAMPLE_FMT_FLT:
+		case AV_SAMPLE_FMT_FLT:
 			mtap->samplewidth = 8*sizeof(float);
 			mtap->framesize = mtap->channels * sizeof(float);
 			mtap->msf = sxe_msf_FLT;
 			break;
-		case SAMPLE_FMT_NONE:
+		case AV_SAMPLE_FMT_NONE:
 		default:
 			mtap->samplewidth = 0;
 			break;
@@ -525,7 +513,7 @@ media_ffmpeg_open(Lisp_Media_Stream *ms)
 		}
 
 		/* store the filesize */
-		mkfp->filesize = avfc->file_size;
+		/* mkfp->filesize = avfc->file_size; */
 		break;
 	}
 	case MKIND_STRING: {
@@ -561,7 +549,7 @@ media_ffmpeg_open(Lisp_Media_Stream *ms)
 			avcc = avst->codec;
 			if (avcc &&
 			    avcc->codec_id != CODEC_ID_NONE &&
-			    avcc->codec_type != CODEC_TYPE_DATA &&
+			    avcc->codec_type != AVMEDIA_TYPE_DATA &&
 			    (avc = avcodec_find_decoder(avcc->codec_id)) &&
 			    (avc && (avcodec_open(avcc, avc) >= 0))) {
 
@@ -569,19 +557,19 @@ media_ffmpeg_open(Lisp_Media_Stream *ms)
 				mss = make_media_substream_append(ms);
 
 				switch ((unsigned int)avcc->codec_type) {
-				case CODEC_TYPE_VIDEO:
+				case AVMEDIA_TYPE_VIDEO:
 					/* assign substream props */
 					media_substream_type(mss) = MTYPE_VIDEO;
 					media_ffmpeg_analyse_video(mss, avfc, st);
 					break;
-				case CODEC_TYPE_AUDIO:
+				case AVMEDIA_TYPE_AUDIO:
 					/* assign substream props */
 					media_substream_type(mss) = MTYPE_AUDIO;
 					media_ffmpeg_analyse_audio(mss, avfc, st);
 					/* set some stream handlers */
 					media_stream_set_meths(ms, media_ffmpeg);
 					break;
-				case CODEC_TYPE_DATA:
+				case AVMEDIA_TYPE_DATA:
 					media_substream_type(mss) = MTYPE_IMAGE;
 					break;
 				default:
@@ -710,6 +698,11 @@ media_ffmpeg_read(media_substream *mss, void *outbuf, size_t length)
 
 		dec = pkt.size;
 		/* decode the demuxed packet */
+		int got_frame = 0;
+		declen = avcodec_decode_audio4(
+			avcc, (void*)((char*)outbuf+bufseek),
+			&got_frame, &pkt);
+#if 0
 #ifdef HAVE_AVCODEC_DECODE_AUDIO2
 /* prefer decode_audio2() if available */
 		size = AVCODEC_MAX_AUDIO_FRAME_SIZE;
@@ -723,7 +716,7 @@ media_ffmpeg_read(media_substream *mss, void *outbuf, size_t length)
 #else
 		abort();
 #endif
-
+#endif
 		if (dec > 0 && size > 0) {
 			FFMPEG_DEBUG_AVF("pts:%lld dts:%lld psz:%d s:%d d:%d\n",
 					 (long long int)pkt.pts,
@@ -1072,7 +1065,7 @@ stream_component_open(VideoState *is, int stream_index, Lisp_Media_Stream *ms)
 	enc = ic->streams[stream_index]->codec;
 
 	/* prepare audio output */
-	if (enc->codec_type == CODEC_TYPE_AUDIO) {
+	if (enc->codec_type == AVMEDIA_TYPE_AUDIO) {
 #if 0
 		wanted_spec.freq = enc->sample_rate;
 		wanted_spec.format = AUDIO_S16SYS;
@@ -1118,7 +1111,7 @@ stream_component_open(VideoState *is, int stream_index, Lisp_Media_Stream *ms)
 	mss = make_media_substream_append(ms);
 
 	switch ((unsigned int)enc->codec_type) {
-	case CODEC_TYPE_AUDIO:
+	case AVMEDIA_TYPE_AUDIO:
 		is->audio_stream = stream_index;
 		is->audio_st = ic->streams[stream_index];
 		is->audio_buf_size = 0;
@@ -1138,7 +1131,7 @@ stream_component_open(VideoState *is, int stream_index, Lisp_Media_Stream *ms)
 		media_substream_type(mss) = MTYPE_AUDIO;
 		media_ffmpeg_analyse_audio(mss, is->ic, stream_index);
 		break;
-	case CODEC_TYPE_VIDEO:
+	case AVMEDIA_TYPE_VIDEO:
 		is->video_stream = stream_index;
 		is->video_st = ic->streams[stream_index];
 
@@ -1158,7 +1151,7 @@ stream_component_open(VideoState *is, int stream_index, Lisp_Media_Stream *ms)
 		media_substream_type(mss) = MTYPE_VIDEO;
 		media_ffmpeg_analyse_video(mss, is->ic, stream_index);
 		break;
-	case CODEC_TYPE_SUBTITLE:
+	case AVMEDIA_TYPE_SUBTITLE:
 		is->subtitle_stream = stream_index;
 		is->subtitle_st = ic->streams[stream_index];
 		packet_queue_init(&is->subtitleq);
@@ -1183,14 +1176,14 @@ stream_component_close(VideoState *is, int stream_index)
 	enc = ic->streams[stream_index]->codec;
 
 	switch ((unsigned int)enc->codec_type) {
-	case CODEC_TYPE_AUDIO:
+	case AVMEDIA_TYPE_AUDIO:
 		packet_queue_abort(&is->audioq);
 #if 0
 		SDL_CloseAudio();
 #endif
 		packet_queue_end(&is->audioq);
 		break;
-	case CODEC_TYPE_VIDEO:
+	case AVMEDIA_TYPE_VIDEO:
 		packet_queue_abort(&is->videoq);
 
 		/* note: we also signal this mutex to make sure we deblock the
@@ -1203,7 +1196,7 @@ stream_component_close(VideoState *is, int stream_index)
 #endif
 		packet_queue_end(&is->videoq);
 		break;
-	case CODEC_TYPE_SUBTITLE:
+	case AVMEDIA_TYPE_SUBTITLE:
 		packet_queue_abort(&is->subtitleq);
 
 		/* note: we also signal this mutex to make sure we deblock the
@@ -1224,15 +1217,15 @@ stream_component_close(VideoState *is, int stream_index)
 
 	avcodec_close(enc);
 	switch ((unsigned int)enc->codec_type) {
-	case CODEC_TYPE_AUDIO:
+	case AVMEDIA_TYPE_AUDIO:
 		is->audio_st = NULL;
 		is->audio_stream = -1;
 		break;
-	case CODEC_TYPE_VIDEO:
+	case AVMEDIA_TYPE_VIDEO:
 		is->video_st = NULL;
 		is->video_stream = -1;
 		break;
-	case CODEC_TYPE_SUBTITLE:
+	case AVMEDIA_TYPE_SUBTITLE:
 		is->subtitle_st = NULL;
 		is->subtitle_stream = -1;
 		break;
@@ -1244,22 +1237,12 @@ stream_component_close(VideoState *is, int stream_index)
 static void
 dump_stream_info(const AVFormatContext *s)
 {
-	if (s->track != 0)
-		fprintf(stderr, "Track: %d\n", s->track);
-	if (s->title[0] != '\0')
-		fprintf(stderr, "Title: %s\n", s->title);
-	if (s->author[0] != '\0')
-		fprintf(stderr, "Author: %s\n", s->author);
-	if (s->copyright[0] != '\0')
-		fprintf(stderr, "Copyright: %s\n", s->copyright);
-	if (s->comment[0] != '\0')
-		fprintf(stderr, "Comment: %s\n", s->comment);
-	if (s->album[0] != '\0')
-		fprintf(stderr, "Album: %s\n", s->album);
-	if (s->year != 0)
-		fprintf(stderr, "Year: %d\n", s->year);
-	if (s->genre[0] != '\0')
-		fprintf(stderr, "Genre: %s\n", s->genre);
+	AVDictionaryEntry *tag = NULL;
+
+	while ((tag = av_dict_get(s->metadata, "", tag,
+				  AV_DICT_IGNORE_SUFFIX))) {
+		fprintf(stderr, "%s: %s\n", tag->key, tag->value);
+	}
 }
 
 enum {
@@ -1268,6 +1251,7 @@ enum {
 	AV_SYNC_EXTERNAL_CLOCK, /* synchronize to an external clock */
 };
 
+#if 0				/* We are nowhere near ready for video */
 static VideoState *
 stream_open(char *filename, size_t filelen)
 {
@@ -1385,12 +1369,12 @@ new_media_ffmpeg_open(Lisp_Media_Stream *ms)
 	for (size_t i = 0; i < vs->ic->nb_streams; i++) {
 		AVCodecContext *enc = vs->ic->streams[i]->codec;
 		switch ((unsigned int)enc->codec_type) {
-		case CODEC_TYPE_AUDIO:
+		case AVMEDIA_TYPE_AUDIO:
 			if ((audio_index < 0 || wanted_audio_stream-- > 0)) {
 				audio_index = i;
 			}
 			break;
-		case CODEC_TYPE_VIDEO:
+		case AVMEDIA_TYPE_VIDEO:
 			if ((video_index < 0 || wanted_video_stream-- > 0)) {
 				video_index = i;
 			}
@@ -1639,6 +1623,7 @@ new_media_ffmpeg_rewind(media_substream *mss)
 		return;
 	}
 }
+#endif	/* video crud */
 
 
 Lisp_Object
@@ -1650,7 +1635,7 @@ media_ffmpeg_available_formats(void)
 	formats = Qnil;
 
 	av_register_all();
-	avif = first_iformat;
+	avif = av_iformat_next(avif);
 
 	while (avif) {
 		if (avif->name) {
