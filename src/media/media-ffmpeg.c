@@ -583,8 +583,9 @@ media_ffmpeg_read(media_substream *mss, void *outbuf, size_t length)
 	/* buffering */
 	/* the size we present here, is _not_ the size we want, however
 	 * ffmpeg is quite pedantic about the buffer size,
-	 * we just pass the least possible value here to please him */
-	int size = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+	 * we just pass the least possible value here to please him.
+         * Roughly enough for 1 second of 48khz 32bit audio */
+	int size = 192000;
 	uint16_t framesize;
 	/* result */
 	long int bufseek = 0, si = -1;

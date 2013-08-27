@@ -318,8 +318,11 @@ AC_DEFUN([SXE_MM_CHECK_FFMPEG], [
 	pushdef([ACTION_IF_NOT_FOUND], [$2])
 
 	sxe_cv_feat_ffmpeg=
-	SXE_PC_CHECK_VERSION_ATLEAST([libavformat], [53.17.0])
-	SXE_PC_CHECK_VERSION_ATLEAST([libavcodec], [53.25.0])
+
+	## Minimum versions required matches FFmpeg stable v2.0.1
+	## released 2013-08-13
+	SXE_PC_CHECK_VERSION_ATLEAST([libavformat], [55.12.100])
+	SXE_PC_CHECK_VERSION_ATLEAST([libavcodec], [55.18.102])
 
 	SXE_CHECK_FFMPEG_HEADERS
 	SXE_CHECK_FFMPEG_LIBS
