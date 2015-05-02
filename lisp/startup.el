@@ -3,7 +3,7 @@
 ;; Copyright (C) 1985-1986, 1990, 1992-1997 Free Software Foundation, Inc.
 ;; Copyright (c) 1993, 1994 Sun Microsystems, Inc.
 ;; Copyright (C) 1995 Board of Trustees, University of Illinois
-;; Copyright (C) 2004 - 2012 Steve Youngs
+;; Copyright (C) 2004 - 2015 Steve Youngs
 
 ;; Maintainer: SXEmacs Development Team
 ;; Keywords: internal, dumped
@@ -92,17 +92,41 @@ the user's init file.")
 (defvar emacs-roots nil
   "List of plausible roots of the SXEmacs hierarchy.")
 
-(defvar user-init-directory-base ".sxemacs"
-  "Base of directory where user-installed init files may go.")
+(defun find-user-init-directory ()
+  "Find the user's init directory.
 
-(defvar user-init-directory
-  (file-name-as-directory
-   (paths-construct-path (list "~" user-init-directory-base)))
+If no init directory currently exists, this will return:
+\"$XDG_CONFIG_HOME/sxemacs\", which falls back to
+\"~/.config/sxemacs\" if $XDG_CONFIG_HOME is not set in the user's
+environment.
+
+If the legacy init directory, \"~/.sxemacs\" exists, return that.
+
+If both the legacy directory and the XDG-based directory exist, return
+the XDG-based directory unless $SXE_USE_LEGACY is set in the user's
+environment."
+  (let* ((legacy (getenv "SXE_USE_LEGACY"))
+	 (xdg (getenv "XDG_CONFIG_HOME"))
+	 (xdgdir (or (and xdg
+			  (paths-construct-path
+			   (list xdg "sxemacs")))
+		     (paths-construct-path
+		      (list (user-home-directory) ".config" "sxemacs"))))
+	 (legacydir (paths-construct-path
+		     (list (user-home-directory) ".sxemacs")))
+	 (locations (list xdgdir legacydir)))
+    (if legacy
+	(file-name-as-directory legacydir)
+      (catch 'found
+	(dolist (dir locations)
+	  (and (paths-file-readable-directory-p dir)
+	       (throw 'found (file-name-as-directory dir))))
+	(file-name-as-directory xdgdir)))))
+
+(defvar user-init-directory ""
   "Directory where user-installed init files may go.
 
-This defaults to \"~/.sxemacs\".  Old XEmacs users can get up and
-running quickly by symlinking \"~/.sxemacs\" to their existing
-\"~/.xemacs\" directory.")
+See: `find-user-init-directory'.")
 
 (defvar user-init-file-base-list '("init.elc" "init.el")
   "List of allowed init files in the user's init directory.
@@ -115,13 +139,13 @@ The first one found takes precedence.")
 
 (defvar site-start-file "site-start"
   "File containing site-wide run-time initializations.
-This file is loaded at run-time before `~/.sxemacs/init.el'.  It
+This file is loaded at run-time before `user-init-file'.  It
 contains inits that need to be in place for the entire site, but
 which, due to their higher incidence of change, don't make sense to
 load into SXEmacs' dumped image.  Thus, the run-time load order is:
 
   1. file described in this variable, if non-nil;
-  2. `~/.sxemacs/init.el';
+  2. `user-init-file';
   3. `/path/to/sxemacs/lisp/default.el'.
 
 Don't use the `site-start.el' file for things some users may not like.
@@ -224,6 +248,7 @@ In addition, the")
   -user-init-file <file> Use <file> as init file.
   -user-init-directory <directory> Use <directory> as init directory.
   -user <user>          Load user's init file instead of your own.
+                        Probably not a wise thing to do.
   -u <user>             Same as -user.\n")
    (let ((l command-switch-alist)
 	  (insert (lambda (&rest x)
@@ -498,10 +523,14 @@ Type ^H^H^H (Control-h Control-h Control-h) to get more help options.\n")
        ((or (string= arg "-u")
 	    (string= arg "-user"))
 	(let* ((user (pop args))
-	       (home-user (concat "~" user)))
-	  (setq user-init-directory (file-name-as-directory
-				     (paths-construct-path
-				      (list home-user user-init-directory-base))))
+	       (home-user (concat "~" user))
+	       (xdgdir (paths-construct-path
+			(list home-user ".config" "sxemacs")))
+	       (legacydir (paths-construct-path (list home-user ".sxemacs")))
+	       (dir-user (or (and (file-directory-p xdgdir)
+				  (file-name-as-directory xdgdir))
+			     (file-name-as-directory legacydir))))
+	  (setq user-init-directory dir-user)
 	  (setq user-init-file
 		(find-user-init-file user-init-directory))
 	  (setq custom-file

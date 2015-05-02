@@ -96,13 +96,14 @@ corelispels =								\
 	page.el paragraphs.el paths.el picture.el printer.el		\
 	process.el rect.el regexp-opt.el register.el replace.el         \
 	resize-minibuffer.el scrollbar.el select.el shadow.el simple.el \
-	sound.el specifier.el subr.el symbol-syntax.el symbols.el       \
-	syntax.el text-mode.el text-props.el toolbar-items.el           \
-	toolbar.el tty-init.el undo-stack.el userlock.el version.el     \
-	view-less.el wid-browse.el wid-edit.el widget.el		\
-	window-xemacs.el window.el x-color.el x-compose.el x-faces.el	\
-	x-font-menu.el x-init.el x-iso8859-1.el x-misc.el x-mouse.el	\
-	x-scrollbar.el x-select.el x-win-sun.el x-win-xfree86.el
+	site-start.el sound.el specifier.el subr.el symbol-syntax.el    \
+        symbols.el syntax.el text-mode.el text-props.el                 \
+	toolbar-items.el toolbar.el tty-init.el undo-stack.el           \
+	userlock.el version.el view-less.el wid-browse.el wid-edit.el   \
+	widget.el window-xemacs.el window.el x-color.el x-compose.el    \
+	x-faces.el x-font-menu.el x-init.el x-iso8859-1.el x-misc.el    \
+	x-mouse.el x-scrollbar.el x-select.el x-win-sun.el              \
+	x-win-xfree86.el
 
 ffilispels =								\
 	ffi/ffi-curl.el ffi/ffi-gcrypt.el ffi/ffi-libc.el		\
