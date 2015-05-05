@@ -2522,10 +2522,10 @@ which returns to Info mode for browsing.
 (defun Info-annotate (arg)
   "Add a personal annotation to the current Info node.
  Only you will be able to see this annotation.  Annotations are stored
-in the file \"~/.sxemacs/info.notes\" by default.  If point is inside
-an existing annotation, edit that annotation.  A prefix argument
-specifies which annotations file (from `Info-annotations-path') is to
-be edited; default is 1."
+in the file \"info.notes\" in your `user-init-directory' by default.  If
+point is inside an existing annotation, edit that annotation.  A prefix
+argument specifies which annotations file (from `Info-annotations-path')
+is to be edited; default is 1."
   (interactive "p")
   (setq arg (1- arg))
   (if (or (< arg 0) (not (nth arg Info-annotations-path)))

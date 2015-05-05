@@ -1,3 +1,4 @@
+@c FIXME -- some of the paths here are out of date and wrong.
 @node Startup Paths, Packages, Command Switches, Top
 @comment  node-name,  next,  previous,  up
 @section How SXEmacs finds Directories and Files

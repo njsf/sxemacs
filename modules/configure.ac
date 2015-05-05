@@ -2,7 +2,7 @@ dnl SXEmacs emodules configure script
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ(2.59)
-AC_INIT([SXEmacs modules], [22.1.6],[http://issues.sxemacs.org/])
+AC_INIT([SXEmacs modules], [22.1.15],[http://issues.sxemacs.org/])
 AC_CONFIG_HEADERS([config.emods.h])
 AC_LANG(C)
 

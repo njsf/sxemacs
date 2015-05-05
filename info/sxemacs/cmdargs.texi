@@ -4,11 +4,11 @@
 @cindex arguments (from shell)
 
   SXEmacs supports command line arguments you can use to request
-various actions when invoking Emacs.  The commands are for compatibility
+various actions when invoking SXEmacs.  The commands are for compatibility
 with other editors and for sophisticated activities.  If you are using
 SXEmacs under the X window system, you can also use a number of
 standard Xt command line arguments. Command line arguments are not usually
-needed for editing with Emacs; new users can skip this section.
+needed for editing with SXEmacs; new users can skip this section.
 
   Many editors are designed to be started afresh each time you want to
 edit.  You start the editor to edit one file; then exit the editor.  The
@@ -17,16 +17,16 @@ start the editor again.  Under these circumstances, it makes sense to use a
 command line argument to say which file to edit.
 
   The recommended way to use SXEmacs is to start it only once, just
-after you log in, and do all your editing in the same Emacs process.
+after you log in, and do all your editing in the same SXEmacs process.
 Each time you want to edit a file, you visit it using the existing
-Emacs.  Emacs creates a new buffer for each file, and (unless you kill
-some of the buffers) Emacs eventually has many files in it ready for
-editing.  Usually you do not kill the Emacs process until you are about
-to log out.  Since you usually read files by typing commands to Emacs,
-command line arguments for specifying a file when Emacs is started are seldom
+SXEmacs.  SXEmacs creates a new buffer for each file, and (unless you kill
+some of the buffers) SXEmacs eventually has many files in it ready for
+editing.  Usually you do not kill the SXEmacs process until you are about
+to log out.  Since you usually read files by typing commands to SXEmacs,
+command line arguments for specifying a file when SXEmacs is started are seldom
 needed.
 
-  Emacs accepts command-line arguments that specify files to visit,
+  SXEmacs accepts command-line arguments that specify files to visit,
 functions to call, and other activities and operating modes.  If you
 are running SXEmacs under the X window system, a number of standard Xt
 command line arguments are available, as well as a few X parameters
@@ -82,7 +82,7 @@ Insert the contents of @var{file} into the current buffer.  This is like
 what @kbd{M-x insert-buffer} does; @xref{Misc File Ops}.
 
 @item -kill
-Exit from Emacs without asking for confirmation.  Always the last
+Exit from SXEmacs without asking for confirmation.  Always the last
 argument processed, no matter where it appears in the command line.
 
 @item -version
@@ -123,19 +123,19 @@ implies the @samp{-nw} option, documented below.
 
 @cindex batch mode
 @item -batch
-Run Emacs in @dfn{batch mode}, which means that the text being edited is
+Run SXEmacs in @dfn{batch mode}, which means that the text being edited is
 not displayed and the standard Unix interrupt characters such as
-@kbd{C-z} and @kbd{C-c} continue to have their normal effect.  Emacs in
+@kbd{C-z} and @kbd{C-c} continue to have their normal effect.  SXEmacs in
 batch mode outputs to @code{stderr} only what would normally be printed
 in the echo area under program control.
 
-Batch mode is used for running programs written in Emacs Lisp from shell
+Batch mode is used for running programs written in SXEmacs Lisp from shell
 scripts, makefiles, and so on.  Normally the @samp{-l} switch or
 @samp{-f} switch will be used as well, to invoke a Lisp program to do
 the batch processing.
 
 @samp{-batch} implies @samp{-q} (do not load an init file).  It also
-causes Emacs to kill itself after all command switches have been
+causes SXEmacs to kill itself after all command switches have been
 processed.  In addition, auto-saving is not done except in buffers for
 which it has been explicitly requested.
 
@@ -165,7 +165,7 @@ SXEmacs as a server (e.g. for gnuserv screens or external client widgets).
 
 @item -no-init-file
 @itemx -q
-Do not load your Emacs init file.  @xref{Init File}.
+Do not load your SXEmacs init file.  @xref{Init File}.
 
 @item -no-site-file
 Do not load the site-specific init file @file{lisp/site-start.el}.
@@ -182,19 +182,18 @@ concerning the package system, @xref{Startup Paths}.)
 This is equivalent to @samp{-q -no-site-file -no-early-packages}.
 
 @item -user-init-file @var{file}
-Load @var{file} as your Emacs init file instead of
-@file{~/.sxemacs/init.el}.
+Load @var{file} as your SXEmacs init file instead of the default
+@file{$XDG_CONFIG_HOME/sxemacs/init.el}.
 
 @item -user-init-directory @var{directory}
-Use @var{directory} as the location of your early package hierarchies
-and the various user-specific initialization files.
+Use @var{directory} as the location of your initialization files.
 
 @item -user @var{user}
 @itemx -u @var{user}
-Equivalent to @samp{-user-init-file ~@var{user}/.sxemacs/init.el
--user-init-directory ~@var{user}/.sxemacs}, or @samp{-user-init-file
-~@var{user}/.emacs -user-init-directory ~@var{user}/.sxemacs}, whichever
-init file comes first.  @xref{Init File}.
+Attempt to load @var{user} init instead of your own.  There is no
+privilege escalation going on, the SXEmacs process is still owned by
+you, not @var{user}.  In fact, using this option is often hindered by
+file and directory permissions. YMMV.  @xref{Init File}.
 
 @end table
 
@@ -213,7 +212,7 @@ sxemacs *.c
 @end example
 
 @noindent
-passes each @code{.c} file as a separate argument to Emacs, so that
+passes each @code{.c} file as a separate argument to SXEmacs, so that
 Emacs visits each file (@pxref{Visiting}).
 
   Here is an advanced example that assumes you have a Lisp program file
@@ -225,12 +224,12 @@ sxemacs -batch foo.c -l hack-c-program -f save-buffer -kill > log
 @end example
 
 @noindent
-Here Emacs is told to visit @file{foo.c}, load @file{hack-c-program.el}
+Here SXEmacs is told to visit @file{foo.c}, load @file{hack-c-program.el}
 (which makes changes in the visited file), save @file{foo.c} (note that
 @code{save-buffer} is the function that @kbd{C-x C-s} is bound to), and
 then exit to the shell from which the command was executed.  @samp{-batch}
 guarantees there will be no problem redirecting output to @file{log},
-because Emacs will not assume that it has a display terminal to work
+because SXEmacs will not assume that it has a display terminal to work
 with.
 
 @subsection Command Line Arguments (for SXEmacs Under X)
@@ -303,7 +302,7 @@ Use the geometry (window size and/or position) specified by @var{spec}.
 Start up iconified.
 
 @item -rv
-Bring up Emacs in reverse video.
+Bring up SXEmacs in reverse video.
 
 @item -name @var{name}
 Use the resource manager resources specified by @var{name}.
@@ -311,6 +310,6 @@ The default is to use the name of the program (@code{argv[0]}) as
 the resource manager name.
 
 @item -xrm
-Read something into the resource database for this invocation of Emacs only.
+Read something into the resource database for this invocation of SXEmacs only.
 
 @end table

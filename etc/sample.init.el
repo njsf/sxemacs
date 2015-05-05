@@ -32,17 +32,30 @@
 ;;    (sxemacs)Entering Emacs, and in (custom), then point to them
 ;;    instead of going into detail here.
 
-;;; This is a sample init file.  It can be used without modification as
-;;; your init.el. In SXEmacs, this file is located in the ~/.sxemacs/
-;;; subdirectory and is called init.el.  Other files are also located
-;;; here, such as custom-${USER}.el (the auto-generated file containing
-;;; Customization options that you saved when using
-;;; Options->Save Options).
+;;; This is a sample init file.  It can be used without modification
+;;; as your init.el. In SXEmacs, this file, called `init.el', is
+;;; located in the directory defined in the `user-init-directory'
+;;; variable.  It normally defaults to `${XDG_CONFIG_HOME}/sxemacs',
+;;; or `${HOME}/.config/sxemacs' if the XDG environment isn't set.
+;;; Historically, this file was located in `~/.sxemacs', and indeed,
+;;; that directory is still supported.
+
+;;; To find out exactly where your SXEmacs would look for your init.el
+;;; file, do...
+;;;
+;;;   M-: user-init-directory RET
+
+;;; Other files are also located here, such as custom-${USER}.el (the
+;;; auto-generated file containing Customization options that you
+;;; saved when using Options->Save Options).
 
 ;;; Changes to your init.el file will not take effect until the next
 ;;; time you start up SXEmacs, unless you load it explicitly with
 ;;;
-;;;   M-x load-file RET ~/.sxemacs/init.el RET
+;;;   M-x load-file RET
+;;;
+;;; You'll then be prompted for a file name, give it the full path
+;;; to your init.el and hit `RET'
 
 ;;; The language that this file (and most other SXEmacs init files) is
 ;;; written in is called "Emacs Lisp" or more commonly "elisp".
@@ -149,8 +162,8 @@
 
 ;; 1. It runs the normal hook `before-init-hook'.
 ;; 2. It loads the library `site-start' (by default `site-start.el').
-;; 3. It loads the init file (by default `~/.sxemacs/init.el').
-;; 4. It loads the custom file (by default `~/.sxemacs/custom-${USER}.el').
+;; 3. It loads the init file (by default `${XDG_CONFIG_HOME}/sxemacs/init.el').
+;; 4. It loads the custom file (by default `${XDG_CONFIG_HOME}/sxemacs/custom-${USER}.el').
 ;; 5. It loads the library `default' (by default `default.el').
 ;; 6. It runs the normal hook `after-init-hook'.
 
