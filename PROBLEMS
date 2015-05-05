@@ -8,11 +8,24 @@ following idiosyncrasies:
 
 ** User init file (C-h v user-init-file)
 
-SXEmacs searches for its init file in `~/.sxemacs/init.el'.
-Symlinking your old ~/.xemacs directory should be enough to get you up
-and running.
+SXEmacs looks for user init files in `user-init-directory'.  The
+preferred directory is: ${XDG_CONFIG_HOME}/sxemacs but it can fall
+back to the old ~/.sxemacs directory.
 
-    $ ln -s ~/.xemacs ~/.sxemacs RET
+The search order is:
+
+    ${XDG_CONFIG_HOME}/sxemacs
+    ${HOME}/.config/sxemacs	# if $XDG_CONFIG_HOME is not set
+    ${HOME}/.sxemacs		# if other dirs don't exist
+
+You can also force the use of ~/.sxemacs regardless of the existence
+of the XDG dir/var by setting $SXE_USE_LEGACY environment variable to
+a non-nil value.
+
+If you're coming from XEmacs, symlinking your old ~/.xemacs directory
+to a SXEmacs location should be enough to get you up and running:
+
+    $ ln -svfn ${HOME}/.xemacs ${XDG_CONFIG_HOME}/sxemacs
 
 BTW, unlike XEmacs, SXEmacs doesn't attempt to "migrate" your old init
 file or Gnu/Emacs .emacs file.

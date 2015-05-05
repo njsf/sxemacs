@@ -5,20 +5,21 @@
 @cindex customize
 @findex eval-region
 
-When you start Emacs, it reads the file @file{~/.sxemacs/init.el} in the
-@file{.sxemacs/} subdirectory of your home directory. You can use this
-file to initialize and customize Emacs to your liking. This file should
-contain lisp-code. You can customize your @file{init.el} file to create
-new menus, disable menus, change key bindings, enable a minor mode,
-etc. Any kind of customization affects only a particular Emacs job that
-you do them in. If you want to save your customizations `permanently'
+When you start SXEmacs, it reads the file @file{init.el} in the
+@code{user-init-directory} (@pxref{Init File,,,lispref,SXEmacs Lisp Reference
+Manual}). You can use this file to initialize and customize SXEmacs to
+your liking. This file should contain lisp-code. You can customize
+your @file{init.el} file to create new menus, disable menus, change
+key bindings, enable a minor mode, etc. Any kind of customization
+affects only a particular SXEmacs job that you do them in. If you want
+to save your customizations `permanently'
 i.e. for future use also, you have to put it in your @samp{init.el}
 file. After you make changes to your @file{init.el} file and save it, the
-changes will be effective only after you start Emacs again i.e. for a
-new Emacs process. To try out some of the examples in this section,
+changes will be effective only after you start SXEmacs again i.e. for a
+new SXEmacs process. To try out some of the examples in this section,
 highlight that region and evaluate the region by giving the command
 @kbd{M-x eval-region}. You will be able to see the results of your
-customizations in that Emacs session only (@pxref{Lisp
+customizations in that SXEmacs session only (@pxref{Lisp
 Eval,,,sxemacs,SXEmacs User's Manual}).
 
 @comment  node-name,  next,  previous,  up
@@ -32,9 +33,9 @@ Eval,,,sxemacs,SXEmacs User's Manual}).
 @cindex key bindings
 @cindex keystrokes
 
-  Most of Emacs commands use key
+  Most of SXEmacs commands use key
 sequences. @xref{Keystrokes,,,sxemacs,SXEmacs User's Manual}, for more
-information about Keys and Commands. In Emacs, the keys themselves carry
+information about Keys and Commands. In SXEmacs, the keys themselves carry
 no meaning unless they are bound to a function. For example, @kbd{C-n}
 moves the cursor to the next line because its bound to the function
 @b{next-line}. Similarly, @kbd{C-p} moves to the previous line because
@@ -68,7 +69,7 @@ in the syntax stated above. Here, @samp{nil} stands for @samp{false}
 which means disable a command or turn off a feature. If you want to
 enable a command or turn on a particular feature use @samp{t}
 which stands for @samp{true}.  For example, if you do not wish @kbd{C-x
-C-c} to @samp{Exit Emacs} you can type the following expression in your
+C-c} to @samp{Exit SXEmacs} you can type the following expression in your
 @file{init.el} file:
 
 @example
@@ -78,7 +79,7 @@ C-c} to @samp{Exit Emacs} you can type the following expression in your
 @noindent
 You might want to have this statement in your @file{init.el} file because
 its easy to hit this command by mistake and it could be annoying to exit
-Emacs unintentionally. There is an @b{Exit Emacs} option in the @b{File
+Emacs unintentionally. There is an @b{Exit SXEmacs} option in the @b{File
 menu} which you might want to use instead. To make a particular key
 undefined you can also use:
 
@@ -198,7 +199,7 @@ Execute Last Macro      C-xe
 
 @noindent
 @b{Replace String} will now execute the function
-@code{replace-string}. Select this menu item. Emacs will prompt you for
+@code{replace-string}. Select this menu item. SXEmacs will prompt you for
 a string name to be replaced. Type a
 string and hit @key{RET}. Now type a new string to replace the old
 string and hit @key{RET}. All occurrences of the old string will be

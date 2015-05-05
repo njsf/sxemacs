@@ -622,8 +622,14 @@ CTRL-SHIFT-left	Make a selection, delete it, and insert it at point.
 .ti -\w'CTRL-SHIFT-middle'u+4n
 META-left	Make a rectangular selection.
 .SH FILES
-Lisp code is read at startup from the user's init file,
-\fB$HOME/.sxemacs/init.el\fP.
+Lisp code is read at startup from the user's init file, which can be
+one of:
+
+\fB${XDG_CONFIG_HOME}/sxemacs/init.el\fP
+
+\fB${HOME}/.config/sxemacs/init.el\fP
+
+\fB${HOME}/.sxemacs/init.el\fP
 
 /usr/local/share/info - files for the Info documentation browser
 (a subsystem of
@@ -790,7 +796,6 @@ FAQ (Frequently Asked Questions) can be found at the Web site just listed.
 A possibly out-of-date version is also accessible through the Info system
 inside of \fISXEmacs\fP.
 .PP
-The latest version of \fISXEmacs\fP can be downloaded using anonymous
-FTP from
+The latest version of \fISXEmacs\fP can be downloaded from
 .PP
-ftp://ftp.sxemacs.org/pub/sxemacs/
+http://downloads.sxemacs.org/

@@ -509,26 +509,24 @@ versions of Unix in existence.
 @node Q1.0.2
 @unnumberedsec Q1.0.2: What is the current version of SXEmacs?
 
-SXEmacs 22.1.4 is the latest released version.
-The current development line will become 22.1.5.
+SXEmacs 22.1.15 is the latest released version.
+The current development line will become 22.1.16.
 
 
 @node Q1.0.3
 @unnumberedsec Q1.0.3: Where can I find it?
 
-The canonical source can be found via anonymous FTP at:
+The canonical source can be found on the web at:
 
 @example
-@uref{ftp://ftp.sxemacs.org/sxemacs/}
+@uref{http://downloads.sxemacs.org/}
 @end example
 
-There are also snapshots of the current development line available.
-However, the preferred method to obtain such ``snapshots'' is via tla
-(GNU arch):
+Occasionally there are also snapshots of the current development line
+available.  These can be found at:
 
 @example
-tla register-archive http://arch.sxemacs.org/2006
-tla get steve@@sxemacs.org--2006/sxemacs--main--22.1.5 sxemacs
+@uref{http://downloads.sxemacs.org/snapshots/}
 @end example
 
 
@@ -766,7 +764,7 @@ TeX, you can generate your own manual from the SXEmacs sources.
 HTML and Postscript versions of SXEmacs manuals are available from the
 SXEmacs web site at @uref{http://www.sxemacs.org}.
 @c are they?
-
+@c HTML are, but they may be a little out of date. --SY
 
 @node Q1.1.1
 @unnumberedsec 1.1: Policies
@@ -1253,23 +1251,16 @@ Real Unicode support will be introduced in SXEmacs 22.2.
 @unnumberedsec 1.4: Getting Started, Backing up & Recovery
 @unnumberedsec Q1.4.1: What is an @file{init.el} or @file{.emacs} and is there a sample one?
 
-The @file{init.el} or @file{.emacs} file is used to customise SXEmacs
-to your tastes.  The preferred location for the init
-file is @file{~/.sxemacs/init.el}.  We still accept the older location
-@file{~/.emacs}, but the first time you run it, it will ask to migrate
-your file to the new location.
-If you answer yes, the file will be moved, and a "compatibility"
-@file{.emacs} file will be placed in the old location so that you can
-still run older versions of XEmacs, or versions of GNU Emacs, which
-expect the old location.  The @file{.emacs} file present is just a
-stub that loads the real file in @file{~/.sxemacs/init.el}.
+The @file{init.el} file is used to customise SXEmacs to your tastes.
+The preferred location for the init file is
+@file{$XDG_CONFIG_HOME/sxemacs/init.el} (@pxref{Init File,,,lispref,SXEmacs
+Lisp Reference Manual}).
 
 No two init files are alike, nor are they expected to be alike, but
 that's the point.  The SXEmacs distribution contains an excellent
 starter example in the @file{etc/} directory called
 @file{sample.init.el}.  Copy this file from there to
-@file{~/.sxemacs/init.el}, where @samp{~} means your home directory,
-of course.  Then edit it to suit.
+@file{$XDG_CONFIG_HOME/sxemacs/init.el}, then edit it to suit.
 
 You may bring the @file{sample.init.el} file into a SXEmacs buffer
 from the menubar.  The menu entry is always under the @samp{Samples}

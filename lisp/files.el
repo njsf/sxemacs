@@ -1259,9 +1259,9 @@ from the end of the file name anything that matches one of these regexps.")
   nil ; set by command-line
   "File name including directory of user's initialization file.
 
-This normally defaults to \"~/.sxemacs/init.el\", if you are a XEmacs
-user you can get up and running quickly by symlinking \"~/.sxemacs\"
-to your old \"~/.xemacs\" directory.")
+This normally defaults to \"${XDG_CONFIG_HOME}/sxemacs/init.el\", if
+you are a XEmacs user you can get up and running quickly by symlinking
+your old \"~/.xemacs\" directory.")
 
 (defun set-auto-mode (&optional just-from-file-name)
   "Select major mode appropriate for current buffer.

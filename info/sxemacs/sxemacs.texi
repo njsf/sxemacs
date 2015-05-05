@@ -686,10 +686,7 @@ You need not ask for permission to do so, or tell any one else; just copy
 it.
 
 If you have access to the Internet, you can get the latest version of
-SXEmacs from the anonymous FTP server @file{ftp.sxemacs.org} in the directory
-@file{/pub/sxemacs}.  It can also be found at numerous other archive
-sites around the world; check the file @file{etc/DISTRIB} in an SXEmacs
-distribution for the latest known list.
+SXEmacs from our download site at @uref{http://downloads.sxemacs.org}.
 
 
 @unnumberedsec Getting Other Versions of Emacs

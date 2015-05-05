@@ -1539,17 +1539,19 @@ and some English to explain that string if necessary.
 @node Init File
 @section The Init File
 @cindex init file
+@cindex init directory
 @cindex Emacs initialization file
 @cindex key rebinding, permanent
 @cindex rebinding keys, permanently
 
-  When you start SXEmacs, it normally loads @file{.sxemacs/init.el}
-in your home directory.  This file, if it exists, should contain Lisp
-code.  It is called your initialization file or @dfn{init file}.  Use
-the command line switch @samp{-q} to tell SXEmacs whether to load an init
-file (@pxref{Entering Emacs}).  Use the command line switch
-@samp{-user-init-file} (@pxref{Command Switches}) to tell Emacs to load
-a different file instead of @file{~/.sxemacs/init.el}.
+  When you start SXEmacs, it normally loads @file{init.el}
+in your @code{user-init-directory} (@pxref{Init File,,,lispref,SXEmacs
+Lisp Reference Manual}).  This file, if it exists, should contain
+Lisp code.  It is called your initialization file or @dfn{init file}.
+Use the command line switch @samp{-q} to tell SXEmacs whether to load
+an init file (@pxref{Entering Emacs}).  Use the command line switch
+@samp{-user-init-file} (@pxref{Command Switches}) to tell Emacs to
+load a different file instead.
 
 When the init file is read, the variable @code{user-init-file} says
 which init file was loaded.
@@ -1563,7 +1565,7 @@ first; if it sets @code{inhibit-default-init} non-@code{nil}, then
 @file{default} is not loaded.
 
   If you have a large amount of code in your init file, you should
-byte-compile it to @file{~/.sxemacs/init.elc}.
+byte-compile it to @file{init.elc}.
 
 @menu
 * Init Syntax::     Syntax of constants in Emacs Lisp.

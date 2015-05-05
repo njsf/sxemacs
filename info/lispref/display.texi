@@ -370,7 +370,7 @@ in a separate buffer, and include an explanatory message that may span
 across several lines.  Here is an example of how a warning is displayed:
 
 @example
-(1) (initialization/error) An error has occurred while loading ~/.sxemacs/init.el:
+(1) (initialization/error) An error has occurred while loading ~/.config/sxemacs/init.el:
 
 Symbol's value as variable is void: bogus-variable
 

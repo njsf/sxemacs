@@ -178,7 +178,7 @@ OG_ARG_WITH([package-prefix],
 	AS_HELP_STRING([--with-package-prefix=PATH],
 		[What to use as a prefix to the system-wide package
 		directories.  It doesn't affect the package directories
-		under ~/.sxemacs, and is totally ignored if
+		under the user's home directory, and is totally ignored if
 		--with-package-path is set.
 		Normally, you would not need to set this.]),
 	[none], [None], [og_any],

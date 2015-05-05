@@ -43,8 +43,8 @@
 ;;    and single-minded.  It will only use the default magic db and
 ;;    doesn't allow use of any of file(1)'s options.
 ;;
-;;    (magic:file-type "~/.sxemacs/init.el")
-;;     => "Lisp/Scheme program text"
+;;    (magic:file-type (expand-file-name "about.el" lisp-directory))
+;;     => "Lisp/Scheme program, ISO-8859 text"
 
 ;;; Todo:
 ;;

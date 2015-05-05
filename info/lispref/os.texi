@@ -82,14 +82,16 @@ It loads the library @file{site-start}, unless the option
 @cindex @file{site-start.el}
 
 @item
-It loads the file @file{~/.sxemacs/init.el} unless @samp{-q} was
-specified on the command line.  This is not done in @samp{-batch} mode,
-though.  The @samp{-u} option can specify the user name whose home
-directory should be used instead of @file{~}.
+It loads the file @file{$XDG_CONFIG_HOME/sxemacs/init.el} unless
+@samp{-q} was specified on the command line.  This is not done in
+@samp{-batch} mode, though.  The @samp{-u} option can specify the
+user name whose @file{init.el} should be loaded instead@footnote{Note
+that file and directory permissions may very well hamper the use of
+@samp{-u}.}.
 
-If the directory @file{~/.sxemacs} or @file{init.el} in there does not
-exist, SXEmacs tries to read @file{init.el} in @file{~/.xemacs}.
-If this also fails, it looks for a @file{~/.emacs}.
+If the environment variable, @var{XDG_CONFIG_HOME}, is not set,
+SXEmacs will try @file{~/.config/sxemacs}, and if that directory
+does not exist, try @file{~/.sxemacs}.
 @cindex @file{init.el}
 
 @item
@@ -175,13 +177,43 @@ message for someone else.
 @cindex @file{init.el}
 
   When you start SXEmacs, it normally attempts to load the file
-@file{init.el} from your @file{.sxemacs} directory in your home
-directory.  This file, if it exists, must contain Lisp code.  It is
-called your @dfn{init file}.  The command line switches @samp{-q} and
-@samp{-u} affect the use of the init file; @samp{-q} says not to load an
-init file, and @samp{-u} says to load a specified user's init file
-instead of yours.
+@file{init.el} from the directory set in @code{user-init-directory}.
+This file, if it exists, must contain Lisp code.  It is called your
+@dfn{init file}.  The command line switches @samp{-q} and @samp{-u}
+affect the use of the init file; @samp{-q} says not to load an init
+file, and @samp{-u} says to load a specified user's init file instead of
+yours.
 @xref{Entering SXEmacs,,,sxemacs, The SXEmacs User's Manual}.
+
+@cindex init directory
+@defvar user-init-directory
+This variable contains the name of the directory where a user's init
+files and customisations are stored.  In the past, this was hard-coded
+to @file{~/.sxemacs}, but today the default is normally
+@file{$XDG_CONFIG_HOME/sxemacs}, or @file{~/.config/sxemacs} if the
+environment variable, @var{XDG_CONFIG_HOME} is not set.  If neither,
+@file{$XDG_CONFIG_HOME/sxemacs}, nor @file{~/.config/sxemacs} exists,
+and @file{~/.sxemacs} does exist, then @file{~/.sxemacs} will be used.
+
+If no candidates for @code{user-init-directory} exist SXEmacs will
+create a new directory at @file{$XDG_CONFIG_HOME/sxemacs}, or
+@file{~/.config/sxemacs} if @var{XDG_CONFIG_HOME} is unset.
+@end defvar
+
+The location of the init directory can be overridden through one of
+two methods@enddots{}
+
+@enumerate
+@item
+Using the @samp{-user-init-directory} command line option, which
+allows the user to set the init directory to any location, providing
+that file and directory permissions allow access.
+@item
+Setting the environment variable, @var{SXE_USE_LEGACY}, which forces
+SXEmacs to use the legacy init directory, @file{~/.sxemacs} regardless
+of the existence of a @var{XDG_CONFIG_HOME} based init directory.
+@end enumerate
+
 
 @cindex default init file
   A site may have a @dfn{default init file}, which is the library named

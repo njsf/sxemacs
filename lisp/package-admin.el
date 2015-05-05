@@ -257,7 +257,8 @@ all else fails.  As a side effect of installing packages under
   (if (and pkg-dir
 	   (file-writable-p (directory-file-name pkg-dir)))
       pkg-dir
-    ;; If the user want her packages under ~/.sxemacs/, do so.
+    ;; If the user want her packages in her $HOME, do so.  Currently,
+    ;; that means in `user-init-directory'.
     (let ((type (package-get-info package 'category)))
       (if package-get-install-to-user-init-directory
 	  (progn

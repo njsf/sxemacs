@@ -1555,7 +1555,8 @@ See also `menu-split-long-menu'."
       ["Edit I%_nit File"
        ;; #### there should be something that holds the name that the init
        ;; file should be created as, when it's not present.
-       (progn (find-file (or user-init-file "~/.sxemacs/init.el"))
+       (progn (find-file (or user-init-file
+			     (expand-file-name "init.el" user-init-directory)))
 	      (or (eq major-mode 'emacs-lisp-mode)
 		  (emacs-lisp-mode)))]
       ["%_Save Options to Custom File" customize-save-customized]

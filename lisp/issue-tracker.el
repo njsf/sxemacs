@@ -143,7 +143,7 @@ Turn off this help buffer permanently by adding:
 
 \t \(setq report-sxemacs-bug-no-explanations t\)
 
-To your ~/.sxemacs/init.el")
+To your `user-init-file'")
 
 (defun report-sxemacs-bug-help ()
   "Display the help buffer for `report-sxemacs-bug'."

@@ -52,11 +52,13 @@ With this installation you can try to create a database @samp{test}:
 /usr/local/pgsql/bin/psql test
 @end example
 
-
+@c LOL, maybe one day. Oh, and we don't have ftp. --SY
+@ignore
 If you have installed SXEmacs from one of the binary kits on
 (@url{ftp://ftp.sxemacs.org/}), or are using an SXEmacs binary from
 your favourite distributor, you may have SXEmacs PostgreSQL support
 by default.  @code{M-x describe-installation} will tell you if you do.
+@end ignore
 
 If you are building SXEmacs from source, you need to install PostgreSQL
 first (see above example).  On some systems, PostgreSQL will come
