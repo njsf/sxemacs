@@ -93,7 +93,7 @@ the user's init file.")
   "List of plausible roots of the SXEmacs hierarchy.")
 
 (defun find-user-init-directory ()
-  "Find the user's init directory.
+  "Find and set the user's init directory.
 
 If no init directory currently exists, this will return:
 \"$XDG_CONFIG_HOME/sxemacs\", which falls back to
@@ -114,14 +114,26 @@ environment."
 		      (list (user-home-directory) ".config" "sxemacs"))))
 	 (legacydir (paths-construct-path
 		     (list (user-home-directory) ".sxemacs")))
-	 (locations (list xdgdir legacydir)))
+	 (locations (list xdgdir legacydir))
+	 (multi (count-if #'file-directory-p locations)))
     (if legacy
-	(file-name-as-directory legacydir)
+	(setq user-init-directory (file-name-as-directory legacydir))
       (catch 'found
 	(dolist (dir locations)
 	  (and (paths-file-readable-directory-p dir)
-	       (throw 'found (file-name-as-directory dir))))
-	(file-name-as-directory xdgdir)))))
+	       (throw 'found (setq user-init-directory
+				   (file-name-as-directory dir)))))
+	(setq user-init-directory (file-name-as-directory xdgdir))))
+    ;; Warn if multiple init directories exist
+    (when (> multi 1)
+      (lwarn 'multi-initd nil
+	"Multiple init directories found:
+%S
+
+Currently using: %s
+
+See `display-warning-suppressed-classes' to suppress this warning"
+	locations user-init-directory))))
 
 (defvar user-init-directory ""
   "Directory where user-installed init files may go.
@@ -471,6 +483,11 @@ Type ^H^H^H (Control-h Control-h Control-h) to get more help options.\n")
     ;; and keymaps.
     ))
 
+(defvar forced-user-init-directory nil
+  "Non-nil when `user-init-directory' is set on cmd line.
+
+Internal variable, DO NOT USE.")
+
 (defun command-line-early (args)
   ;; This processes those switches which need to be processed before
   ;; starting up the window system.
@@ -506,7 +523,7 @@ Type ^H^H^H (Control-h Control-h Control-h) to get more help options.\n")
        ((or (string= arg "-no-early-packages")
 	    (string= arg "--no-early-packages"))
 	(setq inhibit-early-packages t))
-       ((or  (string= arg "-warn-early-package-shadows")
+       ((or (string= arg "-warn-early-package-shadows")
 	    (string= arg "--warn-early-package-shadows"))
 	(setq warn-early-package-shadows t))
        ((or (string= arg "-vanilla")
@@ -519,22 +536,50 @@ Type ^H^H^H (Control-h Control-h Control-h) to get more help options.\n")
        ((string= arg "-user-init-file")
 	(setq user-init-file (pop args)))
        ((string= arg "-user-init-directory")
-	(setq user-init-directory (file-name-as-directory (pop args))))
+	(setq forced-user-init-directory t)
+	(setq user-init-directory (file-name-as-directory (pop args)))
+	(setq user-init-file (find-user-init-file user-init-directory))
+	(setq custom-file (make-custom-file-name user-init-file))
+	(startup-setup-paths emacs-roots
+			     user-init-directory
+			     inhibit-early-packages
+			     debug-paths)
+	(unless inhibit-early-packages
+	  (unless inhibit-autoloads
+	    (packages-load-package-auto-autoloads
+	     early-package-load-path)))
+	(setq lisp-initd-dir
+	      (file-name-as-directory
+	       (paths-construct-path (list user-init-directory
+					   lisp-initd-basename)))))
        ((or (string= arg "-u")
 	    (string= arg "-user"))
 	(let* ((user (pop args))
 	       (home-user (concat "~" user))
 	       (xdgdir (paths-construct-path
 			(list home-user ".config" "sxemacs")))
-	       (legacydir (paths-construct-path (list home-user ".sxemacs")))
+	       (legacydir (paths-construct-path
+			   (list home-user ".sxemacs")))
 	       (dir-user (or (and (file-directory-p xdgdir)
 				  (file-name-as-directory xdgdir))
 			     (file-name-as-directory legacydir))))
+	  (setq forced-user-init-directory t)
 	  (setq user-init-directory dir-user)
 	  (setq user-init-file
 		(find-user-init-file user-init-directory))
-	  (setq custom-file
-		(make-custom-file-name user-init-file))))
+	  (setq custom-file (make-custom-file-name user-init-file))
+	  (startup-setup-paths emacs-roots
+			       user-init-directory
+			       inhibit-early-packages
+			       debug-paths)
+	  (unless inhibit-early-packages
+	    (unless inhibit-autoloads
+	      (packages-load-package-auto-autoloads
+	       early-package-load-path)))
+	  (setq lisp-initd-dir
+		(file-name-as-directory
+		 (paths-construct-path (list user-init-directory
+					     lisp-initd-basename))))))
        ((string= arg "-debug-init")
 	(setq init-file-debug t))
        ((string= arg "-unmapped")
@@ -550,6 +595,14 @@ Type ^H^H^H (Control-h Control-h Control-h) to get more help options.\n")
     ;; obsolete, initialize for backward compatibility
     (with-obsolete-variable 'init-file-user
       (setq init-file-user (and load-user-init-file-p "")))
+
+    (if (and debug-paths forced-user-init-directory)
+	(progn
+	  (princ (format "user-init-directory:\n%S\n"
+			 user-init-directory)
+		 'external-debugging-output)
+	  (princ (format "lisp-initd-dir:\n\%S\n" lisp-initd-dir)
+		 'external-debugging-output)))
 
     (nreverse new-args)))
 
@@ -979,7 +1032,7 @@ a new format, when variables have changed, etc."
   - And, above all, to have fun doing it.\n"
      "\n--\n"
      (face italic "
-Copyright (C) 2004 - 2012 Steve Youngs\n"))
+Copyright (C) 2004 - 2015 Steve Youngs\n"))
 ; Copyright (C) 1985-2001 Free Software Foundation, Inc.
 ; Copyright (C) 1990-1994 Lucid, Inc.
 ; Copyright (C) 1993-1997 Sun Microsystems, Inc. All Rights Reserved.
@@ -1089,15 +1142,36 @@ Copyright (C) 2004 - 2012 Steve Youngs\n"))
 
 (defvar Info-directory-list)
 
-(defun startup-setup-paths (roots user-init-directory
+(defun startup-setup-paths (roots userdir
 				  &optional
 				  inhibit-early-packages debug-paths)
   "Setup all the various paths.
 ROOTS is a list of plausible roots of the SXEmacs directory hierarchy.
-If INHIBIT-PACKAGES is non-NIL, don't do packages.
-If DEBUG-PATHS is non-NIL, print paths as they are detected.
-It's idempotent, so call this as often as you like!"
-
+USERDIR is the user's init directory, possibly computed.
+If INHIBIT-EARLY-PACKAGES is non-NIL, don't do user packages.
+If DEBUG-PATHS is non-NIL, print paths as they are detected.  It's
+idempotent, so call this as often as you like!"
+  ;; Maybe find a good candidate for user-init-directory, but only if
+  ;; SXEmacs was started without any command line arg that would set
+  ;; or change it.
+  (let ((allargs command-line-args)
+	(initdargs '("-u" "-user" "-user-init-directory")))
+    (unless
+	(or (member t (mapfam #'string= initdargs allargs :mode 'comb))
+	    forced-user-init-directory)
+      (find-user-init-directory)
+      (setq userdir user-init-directory)
+      (setq lisp-initd-dir (file-name-as-directory
+			    (paths-construct-path
+			     (list userdir lisp-initd-basename))))
+      (if debug-paths
+	  (progn
+	    (princ (format "user-init-directory:\n%S\n"
+			   user-init-directory)
+		   'external-debugging-output)
+	    (princ (format "lisp-initd-dir:\n\%S\n" lisp-initd-dir)
+		   'external-debugging-output)))))
+  ;; Packages
   (apply #'(lambda (early late last)
 	     (setq early-packages (and (not inhibit-early-packages)
 				       early))
@@ -1105,7 +1179,7 @@ It's idempotent, so call this as often as you like!"
 	     (setq last-packages last))
 	 (packages-find-packages
 	  roots
-	  (packages-compute-package-locations user-init-directory)))
+	  (packages-compute-package-locations userdir)))
 
   (setq early-package-load-path
 	(packages-find-package-load-path early-packages)
@@ -1127,13 +1201,13 @@ It's idempotent, so call this as often as you like!"
 	(princ (format "last-packages and last-package-load-path:\n%S\n%S\n"
 		       last-packages last-package-load-path)
 	       'external-debugging-output)))
-
+  ;; Core lisp
   (setq lisp-directory (paths-find-lisp-directory roots))
 
   (if debug-paths
       (princ (format "lisp-directory:\n%S\n" lisp-directory)
 	     'external-debugging-output))
-
+  ;; mule (core)
   (if (featurep 'mule)
       (progn
 	(setq mule-lisp-directory
@@ -1144,7 +1218,7 @@ It's idempotent, so call this as often as you like!"
 			   mule-lisp-directory)
 		   'external-debugging-output)))
     (setq mule-lisp-directory '()))
-
+  ;; FFI
   (setq ffi-lisp-directory
 	(when (fboundp #'ffi-defun)
 	  (paths-find-ffi-lisp-directory roots
@@ -1169,7 +1243,7 @@ It's idempotent, so call this as often as you like!"
 					     nil
 					     mule-lisp-directory
 					     ffi-lisp-directory))
-
+  ;; Info
   (setq Info-directory-list
 	(paths-construct-info-path roots
 				   early-packages late-packages last-packages))
@@ -1184,7 +1258,7 @@ It's idempotent, so call this as often as you like!"
   (if debug-paths
       (princ (format "exec-directory:\n%s\n" exec-directory)
 	     'external-debugging-output))
-
+  ;; Exec
   (setq exec-path
 	(paths-construct-exec-path roots exec-directory
 				   early-packages late-packages last-packages))
@@ -1192,13 +1266,13 @@ It's idempotent, so call this as often as you like!"
   (if debug-paths
       (princ (format "exec-path:\n%S\n" exec-path)
 	     'external-debugging-output))
-
+  ;; Doc
   (setq doc-directory (paths-find-doc-directory roots))
 
   (if debug-paths
       (princ (format "doc-directory:\n%S\n" doc-directory)
 	     'external-debugging-output))
-
+  ;; Data
   (setq data-directory (paths-find-data-directory roots))
 
   (if debug-paths
