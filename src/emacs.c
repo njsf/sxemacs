@@ -1018,9 +1018,9 @@ DOESNT_RETURN main_1(int argc, char **argv, char **envp, int restart)
 
 	/* Handle the -sd/--show-dump-id switch, which means show the hex
 	   dump_id and quit */
-	if (argmatch(argv, argc,
-		     "-sd", "--show-dump-id",
-		     9, NULL, &skip_args)) {
+	if (argmatch(argv, argc, "-show-dump-id", "--show-dump-id", 9,
+		     NULL, &skip_args)
+	    || argmatch(argv, argc, "-sd", 0, 3, NULL, &skip_args)) {
 #ifdef PDUMP
 		printf("%08x\n", dump_id);
 #else
@@ -1034,7 +1034,8 @@ DOESNT_RETURN main_1(int argc, char **argv, char **envp, int restart)
 	{
 		char *term;
 		if (argmatch
-		    (argv, argc, "-t", "--terminal", 4, &term, &skip_args)) {
+		    (argv, argc, "-terminal", "--terminal", 4, &term, &skip_args)
+		    || argmatch(argv, argc, "-t", 0, 2, &term, &skip_args)) {
 			int tdesc = -1;
 #ifdef HAVE_TTYNAME
 			stderr_out("Opening for terminal usage %s (current: %s)\n", term, ttyname(0));
@@ -1083,19 +1084,24 @@ DOESNT_RETURN main_1(int argc, char **argv, char **envp, int restart)
 
 	/* Handle the --no-dump-file/-nd switch, which means don't
 	 * load the dump file (ignored when not using pdump) */
-	if (argmatch(argv, argc, "-nd", "--no-dump-file", 7,
-		     NULL, &skip_args)) {
+	if (argmatch(argv, argc, "-no-dump-file", "--no-dump-file", 7,
+		     NULL, &skip_args)
+	    || argmatch(argv, argc, "-nd", 0, 3, NULL, &skip_args)) {
 		nodumpfile = 1;
 	}
 
-	if (argmatch(argv, argc, "-ct", "--color-terminal", 5,
-		     NULL, &skip_args)) {
+	if (argmatch(argv, argc, "-color-terminal", "--color-terminal", 5,
+		     NULL, &skip_args)
+	    || argmatch(argv, argc, "-ct", 0, 3, NULL, &skip_args)) {
 		assume_colorterm = 1;
 	}
 
 	/* Handle -nw switch */
-	if (argmatch(argv, argc, "-nw", "--no-windows", 6, NULL, &skip_args))
+	if (argmatch(argv, argc, "-no-windows", "--no-windows", 6, NULL,
+		     &skip_args)
+	    || argmatch(argv, argc, "-nw", 0, 3, NULL, &skip_args)) {
 		inhibit_window_system = 1;
+	}
 
 	/* Handle the -batch switch, which means don't do interactive display */
 	if (argmatch(argv, argc, "-batch", "--batch", 5, NULL, &skip_args)) {
@@ -1147,7 +1153,8 @@ DOESNT_RETURN main_1(int argc, char **argv, char **envp, int restart)
 
 	/* Partially handle the -version and -help switches: they imply -batch,
 	   but are not removed from the list. */
-	if (argmatch(argv, argc, "-help", "--help", 3, NULL, &skip_args))
+	if (argmatch(argv, argc, "-help", "--help", 3, NULL, &skip_args)
+	    || argmatch(argv, argc, "-h", 0, 2, NULL, &skip_args))
 		noninteractive = 1, skip_args--;
 
 	if (argmatch(argv, argc, "-version", "--version", 3, NULL, &skip_args)

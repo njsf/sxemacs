@@ -64,38 +64,46 @@ Visit @var{file} using @code{find-file}, then go to line number
 @var{linenum} in it.
 
 @item -load @var{file}
+@itemx --load @var{file}
 @itemx -l @var{file}
 Load a file @var{file} of Lisp code with the function @code{load}.
 @xref{Lisp Libraries}.
 
 @item -funcall @var{function}
+@itemx --funcall @var{function}
 @itemx -f @var{function}
 Call Lisp function @var{function} with no arguments.
 
 @item -eval @var{function}
+@itemx --eval @var{function}
+@itemx -e @var{function}
 Interpret the next argument as a Lisp expression, and evaluate it.
 You must be very careful of the shell quoting here.
 
 @item -insert @var{file}
+@itemx --insert @var{file}
 @itemx -i @var{file}
 Insert the contents of @var{file} into the current buffer.  This is like
 what @kbd{M-x insert-buffer} does; @xref{Misc File Ops}.
 
 @item -kill
+@itemx --kill
 Exit from SXEmacs without asking for confirmation.  Always the last
 argument processed, no matter where it appears in the command line.
 
 @item -version
+@itemx --version
 @itemx -V
 Prints version information.  This implies @samp{-batch}.
 
 @example
 % sxemacs -version
-SXEmacs: steve@@sxemacs.org--2006/sxemacs--main--22.1.4--patch-79,
-built Sun Apr  9 05:36:50 2006 on bastard
+SXEmacs: v22.1.15-131-gccf396e, built Sun May 10 07:40:48 2015 on bastard.steveyoungs.com
 @end example
 
 @item -help
+@itemx --help
+@itemx -h
 Prints a summary of command-line options and then exits.
 @end table
 
@@ -105,24 +113,28 @@ command line.  If more than one of them appears, they must appear in the
 order in which they appear in this table.
 
 @table @samp
-@item --show-dump-id
+@item -show-dump-id
+@itemx --show-dump-id
 @itemx -sd
 Print the ID for the new portable dumper's dump file on the terminal and
 exit.  (Prints an error message and exits if SXEmacs was not configured
 @samp{--pdump}.)
 
-@item --no-dump-file
+@item -no-dump-file
+@itemx --no-dump-file
 @itemx -nd
 Don't load the dump file.  Roughly equivalent to old temacs.  (Ignored if
 SXEmacs was not configured @samp{--pdump}.)
 
-@item --terminal @var{file}
+@item -terminal @var{file}
+@itemx --terminal @var{file}
 @itemx -t @var{file}
 Use @var{file} instead of the terminal for input and output.  This
 implies the @samp{-nw} option, documented below.
 
 @cindex batch mode
 @item -batch
+@itemx --batch
 Run SXEmacs in @dfn{batch mode}, which means that the text being edited is
 not displayed and the standard Unix interrupt characters such as
 @kbd{C-z} and @kbd{C-c} continue to have their normal effect.  SXEmacs in
@@ -139,13 +151,15 @@ causes SXEmacs to kill itself after all command switches have been
 processed.  In addition, auto-saving is not done except in buffers for
 which it has been explicitly requested.
 
-@item --no-windows
+@item -no-windows
+@itemx --no-windows
 @itemx -nw
 Start up SXEmacs in TTY mode (using the TTY SXEmacs was started from),
 rather than trying to connect to an X display.  Note that this happens
 automatically if the @samp{DISPLAY} environment variable is not set.
 
-@item --color-terminal
+@item -color-terminal
+@itemx --color-terminal
 @itemx -ct
 Tells SXEmacs to assume that any TTY frame should be colorized even
 when the color support was not detected. The color support is of
@@ -153,42 +167,53 @@ the 8 color ANSI terminals. If color capabilities of the terminal
 are detected those more accurate settings are used.
 
 @item -debug-init
+@itemx --debug-init
 Enter the debugger if an error in the init file occurs.
 
 @item -debug-paths
+@itemx --debug-paths
 Displays information on how SXEmacs constructs the various paths into its
 hierarchy on startup.  (See also @pxref{Startup Paths}.)
 
 @item -unmapped
+@itemx --unmapped
 Do not map the initial frame.  This is useful if you want to start up
 SXEmacs as a server (e.g. for gnuserv screens or external client widgets).
 
 @item -no-init-file
+@itemx --no-init-file
 @itemx -q
 Do not load your SXEmacs init file.  @xref{Init File}.
 
 @item -no-site-file
+@itemx --no-site-file
 Do not load the site-specific init file @file{lisp/site-start.el}.
 
 @item -no-autoloads
+@itemx --no-autoloads
 Do not load global symbol files (@file{auto-autoloads}) at startup.
 This implies @samp{-vanilla}.
 
 @item -no-early-packages
+@itemx --no-early-packages
 Do not process early packages.  (For more information on startup issues
 concerning the package system, @xref{Startup Paths}.)
 
 @item -vanilla
+@itemx --vanilla
 This is equivalent to @samp{-q -no-site-file -no-early-packages}.
 
 @item -user-init-file @var{file}
+@itemx --user-init-file @var{file}
 Load @var{file} as your SXEmacs init file instead of the default
 @file{$XDG_CONFIG_HOME/sxemacs/init.el}.
 
 @item -user-init-directory @var{directory}
+@itemx --user-init-directory @var{directory}
 Use @var{directory} as the location of your initialization files.
 
 @item -user @var{user}
+@itemx --user @var{user}
 @itemx -u @var{user}
 Attempt to load @var{user} init instead of your own.  There is no
 privilege escalation going on, the SXEmacs process is still owned by
