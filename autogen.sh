@@ -136,26 +136,15 @@ m4_define([4UTOMAKE_VERSION], [$automake_ver])
 m4_define([4IBTOOL_VERSION], [$libtool_ver])
 EOF
 
-if test -z "$FORCE"; then
-    FORCE=
-else
-    rm -rf autom4te.cache aclocal.m4
-    FORCE=--force
-fi
-
 if type glibtoolize 2>/dev/null; then
     LIBTOOLIZE=glibtoolize
 else
     LIBTOOLIZE=libtoolize
 fi
 
-if test ! -d libtldl; then
-        # Force run of libtoolize before autoreconf because newer autoconf
-        # don't deal well with our inclusion of libtldl/m4 in sxe-libtool.m4
-        # if libltdl dir does not exist yet.
-	$LIBTOOLIZE --copy --ltdl > /dev/null 2>&1
-fi
-autoreconf $FORCE --verbose --install -Wall
+# using libtoolize as we did before doesn't work anymore, so just mkdir --Horst
+mkdir -p libltdl/m4
+autoreconf --force --verbose --install -Wall
 
 # hack-o-matic.  Using gmp's config.{guess,sub} lets us have properer
 # detected machine configurations --SY.
