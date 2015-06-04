@@ -1,7 +1,7 @@
 ;;; package-admin.el --- Installation and Maintenance of SXEmacs packages
 
 ;; Copyright (C) 1997 by Free Software Foundation, Inc.
-;; Copyright (C) 2003, 2004 Steve Youngs.
+;; Copyright (C) 2003 - 2015 Steve Youngs.
 
 ;; Author: SL Baur <steve@xemacs.org>
 ;; Keywords: internal
@@ -130,7 +130,7 @@ to BUFFER."
   (require 'packages)
   (autoload 'package-get-info "package-get")
   (autoload 'paths-decode-directory-path "find-paths")
-  (defvar package-get-install-to-user-init-directory))
+  (defvar package-get-install-to-user-directory))
 
 (defun package-admin-find-top-directory (type &optional user-dir)
   "Return the top level directory for a package.
@@ -139,7 +139,7 @@ Argument TYPE is a symbol that determines the type of package we're
 trying to find a directory for.
 
 Optional Argument USER-DIR if non-nil use directories off
-`user-init-directory'.  This overrides everything except
+`user-packages-topdir'.  This overrides everything except
 \"EMACSPACKAGEPATH\".
 
 This function honours the environment variable \"EMACSPACKAGEPATH\"
@@ -189,27 +189,32 @@ Possible values for TYPE are:
 			      "mule-packages")
 		       (setq top-dir (car path-list)))
 		   (setq path-list (cdr path-list)))))))
-    ;; Wasn't in the environment, try `user-init-directory' if
+    ;; Wasn't in the environment, try `user-packages-topdir' if
     ;; USER-DIR is non-nil.
     (if (and user-dir
 	     (not top-dir))
 	(cond ((eq type 'site)
 	       (setq top-dir (file-name-as-directory
-			      (expand-file-name "site-packages" user-init-directory))))
+			      (expand-file-name "site-packages"
+						user-packages-topdir))))
 	      ((eq type 'sxemacs)
 	       (setq top-dir (file-name-as-directory
-			      (expand-file-name "sxemacs-packages" user-init-directory))))
+			      (expand-file-name "sxemacs-packages"
+						user-packages-topdir))))
 	      ((eq type 'std)
 	       (setq top-dir (file-name-as-directory
-			      (expand-file-name "xemacs-packages" user-init-directory))))
+			      (expand-file-name "xemacs-packages"
+						user-packages-topdir))))
 	      ((eq type 'mule)
 	       (setq top-dir (file-name-as-directory
-			      (expand-file-name "mule-packages" user-init-directory))))))
+			      (expand-file-name "mule-packages"
+						user-packages-topdir))))))
     ;; Finally check the normal places
     (if (not top-dir)
 	(let ((path-list (nth 1 (packages-find-packages
 				 emacs-roots
-				 (packages-compute-package-locations user-init-directory)))))
+				 (packages-compute-package-locations
+				  user-packages-topdir)))))
 	  (cond ((eq type 'site)
 		 (while path-list
 		   (if (equal (file-name-nondirectory
@@ -250,17 +255,17 @@ installation.
 
 If PKG-DIR is non-nil and writable, return that.  Otherwise check to
 see if the PACKAGE is already installed and return that location, if
-it is writable.  Finally, fall back to the `user-init-directory' if
+it is writable.  Finally, fall back to the `user-packages-topdir' if
 all else fails.  As a side effect of installing packages under
-`user-init-directory' these packages become part of `early-packages'."
+`user-packages-topdir' these packages become part of `early-packages'."
   ;; If pkg-dir specified, return that if writable.
   (if (and pkg-dir
 	   (file-writable-p (directory-file-name pkg-dir)))
       pkg-dir
     ;; If the user want her packages in her $HOME, do so.  Currently,
-    ;; that means in `user-init-directory'.
+    ;; that means in `user-packages-topdir'.
     (let ((type (package-get-info package 'category)))
-      (if package-get-install-to-user-init-directory
+      (if package-get-install-to-user-directory
 	  (progn
 	    (cond ((equal type "site")
 		   (setq pkg-dir (package-admin-find-top-directory 'site 'user-dir)))
@@ -308,9 +313,9 @@ all else fails.  As a side effect of installing packages under
 		pkg-dir
 	      ;; Oh no!  Either we still haven't found a suitable
 	      ;; directory, or we can't write to the one we did find.
-	      ;; Drop back to the `user-init-directory'.
+	      ;; Drop back to the `user-packages-topdir'.
 	      (if (y-or-n-p (format "Directory isn't writable, use %s instead? "
-				    user-init-directory))
+				    user-packages-topdir))
 		  (progn
 		    (cond ((equal type "site")
 			   (setq pkg-dir (package-admin-find-top-directory 'site 'user-dir)))
@@ -323,10 +328,10 @@ all else fails.  As a side effect of installing packages under
 			  (t
 			   (error 'invalid-operation
 				  "Invalid package type")))
-		    ;; Turn on `package-get-install-to-user-init-directory'
+		    ;; Turn on `package-get-install-to-user-directory'
 		    ;; so we don't get asked for each package we try to
 		    ;; install in this session.
-		    (setq package-get-install-to-user-init-directory t)
+		    (setq package-get-install-to-user-directory t)
 		    pkg-dir)
 		;; If we get to here SXEmacs can't make up its mind and
 		;; neither can the user, nothing left to do except barf. :-(

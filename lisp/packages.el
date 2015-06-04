@@ -2,9 +2,10 @@
 
 ;; Copyright (C) 1997 Free Software Foundation, Inc.
 ;; Copyright (C) 2002, 2003 Ben Wing.
+;; Copyright (C) 2004 - 2015 Steve Youngs
 
 ;; Author: Steven L Baur <steve@xemacs.org>
-;; Maintainer: Steven L Baur <steve@xemacs.org>
+;; Maintainer: Steve Youngs <steve@sxemacs.org>
 ;; Keywords: internal, lisp, dumped
 
 ;; This file is part of SXEmacs.
@@ -83,27 +84,101 @@
 (defvar last-package-load-path nil
   "Load path for packages last in the load path.")
 
-(defun packages-compute-package-locations (user-init-directory)
+(defun packages-find-user-topdir ()
+  "Return the top of the user's local package hierachy.
+
+This should be the equivalent of `$XDG_DATA_HOME/sxemacs'.  But will
+fall back to the old legacy directory, `~/.sxemacs', if that is the
+value of `user-init-directory'.  It may also be in the location set
+via the `-user-pkgs-directory' command line arg."
+  (let* ((legacy (getenv "SXE_USE_LEGACY"))
+	 (xdg (getenv "XDG_DATA_HOME"))
+	 (xdgdir (or (and xdg
+			  (paths-construct-path `(,xdg "sxemacs")))
+		     (paths-construct-path
+		      `(,(user-home-directory)
+			    ".local" "share" "sxemacs"))))
+	 warndirs)
+    ;; Set it, if not already.
+    (when (null user-packages-topdir)
+      (if (or legacy
+	      (string= (expand-file-name "~/.sxemacs")
+		       (expand-file-name user-init-directory)))
+	  (setq user-packages-topdir user-init-directory)
+	(setq user-packages-topdir (file-name-as-directory xdgdir))))
+    ;; Create if needed.
+    (unless (paths-file-readable-directory-p user-packages-topdir)
+      (make-directory-path user-packages-topdir))
+    ;; Warn if a user has pkg dirs in 2 or more of ~/.sxemacs,
+    ;; XDG_CONFIG_HOME, XDG_DATA_HOME, but not for symlinked dirs.
+    (let* ((regexp #r"\(s?xemacs\|site\|mule\)-packages")
+	   (cpkgd (or (and (getenv "XDG_CONFIG_HOME")
+			   (paths-construct-path
+			    `(,(getenv "XDG_CONFIG_HOME") "sxemacs")))
+		      (paths-construct-path
+		       `(,(user-home-directory) ".config" "sxemacs")))))
+      ;; ~/.sxemacs
+      (when (and (not (file-symlink-p "~/.sxemacs"))
+		 (file-directory-p "~/.sxemacs")
+		 (directory-files "~/.sxemacs" nil regexp nil 'subdir))
+	(push "~/.sxemacs" warndirs))
+      ;; XDG_DATA_HOME
+      (when (and (not (file-symlink-p xdgdir))
+		 (file-directory-p xdgdir)
+		 (directory-files xdgdir nil regexp nil 'subdir))
+	(push xdgdir warndirs))
+      ;; XDG_CONFIG_HOME
+      (when (and (not (file-symlink-p cpkgd))
+		 (file-directory-p cpkgd)
+		 (directory-files cpkgd nil regexp nil 'subdir))
+	(push cpkgd warndirs))
+      (when (> (length warndirs) 1)
+	(lwarn 'multi-pkgd nil
+	  "Multiple user package hierarchies detected!!
+
+The following directories contain what appears to be package subdirs:
+%S.
+
+Currently in use: `%s'
+
+This, in itself, is not necessarily a problem, but it may mean that
+some of your packages won't be visible to this SXEmacs instance.  You
+should keep all of your local packages in a single location.
+
+See `display-warning-suppressed-classes' to suppress this warning"
+	  warndirs user-packages-topdir)))
+    ;; Return the dir
+    user-packages-topdir))
+
+(defun packages-compute-package-locations (user-packages-topdir)
   "Compute locations of the various package directories.
-This is a list each of whose elements describes one directory.
-A directory description is a three-element list.
+
+Argument USER-PACKAGES-TOPDIR is the top of the user's local package
+hierarchy.  It would normally be the equivalent of
+`$XDG_DATA_HOME/sxemacs'.
+
+This is a list, each of whose elements describes one directory.  A
+directory description is a three-element list.
+
 The first element is either an absolute path or a subdirectory
 in the XEmacs hierarchy.
-The second component is one of the symbols EARLY, LATE, LAST,
+
+The second element is one of the symbols EARLY, LATE, LAST,
 depending on the load-path segment the hierarchy is supposed to
 show up in.
-The third component is a thunk which, if it returns NIL, causes
-the directory to be ignored."
+
+The third element is a thunk which, if it returns NIL, causes the
+directory to be ignored."
   (list
-   (list (paths-construct-path (list user-init-directory "site-packages"))
+   (list (paths-construct-path (list user-packages-topdir "site-packages"))
 	 'early #'(lambda () t))
-   (list (paths-construct-path (list user-init-directory "sxemacs-packages"))
+   (list (paths-construct-path (list user-packages-topdir "sxemacs-packages"))
 	 'early #'(lambda () t))
-   (list (paths-construct-path (list user-init-directory "infodock-packages"))
+   (list (paths-construct-path (list user-packages-topdir "infodock-packages"))
 	 'early #'(lambda () (featurep 'infodock)))
-   (list (paths-construct-path (list user-init-directory "mule-packages"))
+   (list (paths-construct-path (list user-packages-topdir "mule-packages"))
 	 'early #'(lambda () (featurep 'mule)))
-   (list (paths-construct-path (list user-init-directory "xemacs-packages"))
+   (list (paths-construct-path (list user-packages-topdir "xemacs-packages"))
 	 'early #'(lambda () t))
    (list "site-packages"     'late  #'(lambda () t))
    (list "sxemacs-packages"  'late  #'(lambda () t))

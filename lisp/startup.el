@@ -260,6 +260,8 @@ In addition, the")
   -q                    Same as -no-init-file.
   -user-init-file <file> Use <file> as init file.
   -user-init-directory <directory> Use <directory> as init directory.
+  -user-pkgs-directory <directory> Use <directory> as the top of the local (early)
+                        packages tree.
   -user <user>          Load user's init file instead of your own.
                         Probably not a wise thing to do.
   -u <user>             Same as -user.\n")
@@ -564,13 +566,19 @@ Internal variable, DO NOT USE.")
 	       (home-user (concat "~" user))
 	       (xdgdir (paths-construct-path
 			(list home-user ".config" "sxemacs")))
+	       (xdgpdir (paths-construct-path
+			 (list home-user ".local" "share" "sxemacs")))
 	       (legacydir (paths-construct-path
 			   (list home-user ".sxemacs")))
 	       (dir-user (or (and (file-directory-p xdgdir)
 				  (file-name-as-directory xdgdir))
-			     (file-name-as-directory legacydir))))
+			     (file-name-as-directory legacydir)))
+	       (pdir-user (or (and (file-directory-p xdgpdir)
+				   (file-name-as-directory xdgpdir))
+			      (file-name-as-directory legacydir))))
 	  (setq forced-user-init-directory t)
 	  (setq user-init-directory dir-user)
+	  (setq user-packages-topdir pdir-user)
 	  (setq user-init-file
 		(find-user-init-file user-init-directory))
 	  (setq custom-file (make-custom-file-name user-init-file))
@@ -1181,6 +1189,11 @@ idempotent, so call this as often as you like!"
 	    (princ (format "lisp-initd-dir:\n\%S\n" lisp-initd-dir)
 		   'external-debugging-output)))))
   ;; Packages
+  (setq user-packages-topdir (packages-find-user-topdir))
+  (when debug-paths
+    (princ (format "user-packages-topdir: \n%S\n"
+		   user-packages-topdir)
+	   'external-debugging-output))
   (apply #'(lambda (early late last)
 	     (setq early-packages (and (not inhibit-early-packages)
 				       early))
@@ -1188,7 +1201,7 @@ idempotent, so call this as often as you like!"
 	     (setq last-packages last))
 	 (packages-find-packages
 	  roots
-	  (packages-compute-package-locations userdir)))
+	  (packages-compute-package-locations user-packages-topdir)))
 
   (setq early-package-load-path
 	(packages-find-package-load-path early-packages)

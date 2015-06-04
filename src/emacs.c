@@ -3,7 +3,7 @@
    Free Software Foundation, Inc.
    Copyright (C) 1995 Sun Microsystems, Inc.
    Copyright (C) 2000, 2002 Ben Wing.
-   Copyright (C) 2004 Steve Youngs.
+   Copyright (C) 2004, 2015 Steve Youngs.
 
 This file is part of SXEmacs
 
@@ -309,7 +309,7 @@ Lisp_Object Vconfigure_info_directory;
 Lisp_Object Vconfigure_info_path;
 Lisp_Object Vinternal_error_checking;
 Lisp_Object Vmail_lock_methods, Vconfigure_mail_lock_method;
-Lisp_Object Vpath_separator;
+Lisp_Object Vpath_separator, Vuser_packages_topdir;
 
 /* The default base directory SXEmacs is installed under. */
 Lisp_Object Vconfigure_exec_prefix_directory, Vconfigure_prefix_directory;
@@ -332,6 +332,12 @@ int display_arg;
    Lisp symbols may not initialized at the time that we set this
    variable. */
 const char *display_use;
+
+/* Directory specified on the command line for user packages
+   (early-packages).  We cannot use a Lisp symbol here because Lisp
+   symbols may not be initialised at the time that we set this. */
+const char *user_pkgd;
+int upkgd = 0;
 
 /* If non-zero, then the early error handler will only print the error
    message and exit. */
@@ -1114,6 +1120,14 @@ DOESNT_RETURN main_1(int argc, char **argv, char **envp, int restart)
 	if (argmatch(argv, argc, "-debug-paths", "--debug-paths",
 		     11, NULL, &skip_args))
 		debug_paths = 1;
+
+	/* Handle -user-pkgs-directory */
+	char *pkgd;
+	if (argmatch(argv, argc, "-user-pkgs-directory", "--user-pkgs-directory",
+		     11, &pkgd, &skip_args)) {
+		user_pkgd = pkgd;
+		upkgd = 1;
+	}
 
 	/* Partially handle -no-autoloads, -no-early-packages and -vanilla.
 	   Packages */
@@ -2176,6 +2190,14 @@ DOESNT_RETURN main_1(int argc, char **argv, char **envp, int restart)
 	   of this stuff involves querying the current environment and needs
 	   to be done both at dump time and at run time. */
 
+	/* user-packages-topdir (early-packages) */
+	if (upkgd == 0) {
+		Vuser_packages_topdir = Qnil;
+	} else {
+		Vuser_packages_topdir = Ffile_name_as_directory
+			(build_string(user_pkgd));
+	}
+
 	init_initial_directory();	/* get the directory to use for the
 					   "*scratch*" buffer, etc. */
 
@@ -2330,6 +2352,10 @@ static const struct standard_args standard_args[] = {
 	{"-no-autoloads", "--no-autoloads", 50, 0},
 	{"-no-site-file", "--no-site-file", 40, 0},
 	{"-no-early-packages", "--no-early-packages", 35, 0},
+	/* -user-pkgs-directory is actually handled in main_1() and
+	   not in startup.el.  It is listed here because of the
+	   priority given to this arg. */
+	{"-user-pkgs-directory", "--user-pkgs-directory", 30, 1},
 	{"-u", "--user", 30, 1},
 	{"-user", 0, 30, 1},
 	{"-debug-init", "--debug-init", 20, 0},
@@ -3464,6 +3490,12 @@ Set to non-nil when site-modules should not be searched at startup.
 #ifdef INHIBIT_SITE_MODULES
 	inhibit_site_modules = 1;
 #endif
+
+	DEFVAR_LISP("user-packages-topdir", &Vuser_packages_topdir /*
+Top of the user's local package hierarchy.
+This is normally computed at run-time, but may be set via the
+`-user-pkgs-directory' command line argument.
+								   */ );
 
 	DEFVAR_INT("emacs-priority", &emacs_priority /*
 Priority for SXEmacs to run at.
