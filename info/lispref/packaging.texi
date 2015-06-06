@@ -178,7 +178,7 @@ The order of search can be changed at build time by specifying the
 specifying the @code{EMACSPACKAGEPATH} environment variable.
 @xref{Packages,,,sxemacs}
 Also, the location for @code{early-packages} may be set via the
-@code{-user-pkgs-directory} command line argument (@pxref{Command Swithches}).
+@code{-user-pkgs-directory} command line argument (@pxref{Command Switches,,,sxemacs}).
 
 @c #### The following description is quite possibly inaccurate.
 @c Please, Michael, write some specs up!
