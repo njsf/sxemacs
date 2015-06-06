@@ -32,11 +32,22 @@ file or Gnu/Emacs .emacs file.
 
 ** Packages Hierarchy
 
+*** System-wide Packages (late-packages)
+
 The default location that SXEmacs searches for packages is
 `$prefix/share/sxemacs/'.  The same as for the user-init-file, a
 symlink is all you need to get up and running.
 
-    $ ln -s /usr/local/lib/xemacs /usr/local/share/sxemacs RET
+    $ ln -svfn /usr/local/lib/xemacs /usr/local/share/sxemacs
+
+*** User Packages in ${HOME} (early-packages)
+
+For packages that you keep in your ${HOME}, the preferred location is:
+${XDG_DATA_HOME}/sxemacs.  This is normally ${HOME}/.local/share/sxemacs,
+and SXEmacs will use that if ${XDG_DATA_HOME} is not set.
+
+These packages may also be located in ~/.sxemacs if that is where you
+have your user-init-directory set to.
 
 
 * Build Quirks

@@ -419,12 +419,12 @@ If you want an extensive menu-bar use the following expression in your
 @noindent
 If you want to write your own menus, you can look at some of the
 examples in
-@file{/usr/local/lib/sxemacs/xemacs-packages/lisp/edit-utils/big-menubar.el} file.
+@file{/usr/local/share/sxemacs/xemacs-packages/lisp/edit-utils/big-menubar.el} file.
 
 @end itemize
 
    For more information on initializing your @file{init.el} file,
 @xref{Init File,,,sxemacs,SXEmacs User's Manual}. You should also look at
-@file{/usr/local/lib/sxemacs-VERSION/etc/sample.init.el}, which is a sample
+@file{/usr/local/share/sxemacs-VERSION/etc/sample.init.el}, which is a sample
 @file{init.el} file. It contains some of the commonly desired
 customizations in Emacs.
