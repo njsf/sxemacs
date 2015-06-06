@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 1998 by Pete Ware
 ;; Copyright (C) 2002 Ben Wing.
-;; Copyright (C) 2003 - 2012 Steve Youngs
+;; Copyright (C) 2003 - 2015 Steve Youngs
 
 ;; Author: Pete Ware <ware@cis.ohio-state.edu>
 ;; Heavy-Modifications: Greg Klanderman <greg@alphatech.com>
@@ -169,16 +169,19 @@ one version of a package available.")
 
 ;;;###autoload
 (defcustom package-get-package-index-file-location
-  (car (split-path (or (getenv "EMACSPACKAGEPATH") user-init-directory)))
+  (car (split-path (or (getenv "EMACSPACKAGEPATH") user-packages-topdir)))
   "*The directory where the package-index file can be found."
   :type 'directory
   :group 'package-get)
 
 ;;;###autoload
-(defcustom package-get-install-to-user-init-directory nil
-  "*If non-nil install packages under `user-init-directory'."
+(defcustom package-get-install-to-user-directory nil
+  "*If non-nil install packages under `user-packages-topdir'."
   :type 'boolean
   :group 'package-get)
+
+(defvaralias 'package-get-install-to-user-init-directory
+  'package-get-install-to-user-directory)
 
 (define-widget 'host-name 'string
   "A Host name."
@@ -491,7 +494,7 @@ if different."
 			    (md5 (current-buffer)))))
 	(when (not (file-writable-p location))
 	  (if (y-or-n-p (format "Sorry, %s is read-only, can I use %s? "
-				location user-init-directory))
+				location user-packages-topdir))
 	      (setq location (expand-file-name
 			      package-get-base-filename
 			      package-get-package-index-file-location))

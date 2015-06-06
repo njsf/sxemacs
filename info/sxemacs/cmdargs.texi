@@ -212,6 +212,12 @@ Load @var{file} as your SXEmacs init file instead of the default
 @itemx --user-init-directory @var{directory}
 Use @var{directory} as the location of your initialization files.
 
+@item -user-pkgs-directory @var{directory}
+@itemx --user-pkgs-directory @var{directory}
+Use @var{directory} as the location of your local,
+@code{early-packages}, hierarchy instead of the
+default. @file{@var{$XDG_DATA_HOME}/sxemacs}. 
+
 @item -user @var{user}
 @itemx --user @var{user}
 @itemx -u @var{user}

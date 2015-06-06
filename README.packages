@@ -121,7 +121,7 @@ requirements for this to work...
 	   automatically detects it if you have it.  And this quick
 	   test will return `t' if you do...
 
-		M-: (fboundp #'ffi-defun) RET
+		M-: (featurep 'ffi) RET
 
 	2. libcurl.so installed.  Note that you do not need this library
 	   to build SXEmacs.
@@ -314,10 +314,16 @@ this for you.
 * User Package directories
 --------------------------
 
-In addition to the system wide packages, each user can have his own
-packages installed under "~/.sxemacs/". If you want to install packages
-there using the interactive tools, you need to set
-'package-get-install-to-user-init-directory' to 't'
+In addition to the system wide packages, each user can have their own
+packages installed under ${HOME}.  The default location is:
+${XDG_DATA_HOME}/sxemacs, which is normally ~/.local/share/sxemacs,
+and is what SXEmacs will use if ${XDG_DATA_HOME} is not set.
+
+Alternatively, these packages can be installed under ~/.sxemacs if
+that is where you have set your `user-init-diretory' to.
+
+If you want to install packages into your ${HOME} using the interactive
+tools, you need to set 'package-get-install-to-user-directory' to 't'
 
 * Site lisp/Site start
 ----------------------

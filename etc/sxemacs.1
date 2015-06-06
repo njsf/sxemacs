@@ -1,4 +1,4 @@
-.TH SXEMACS 1 "2007-12-29"
+.TH SXEMACS 1 "2015-06-05"
 .UC 4
 .SH NAME
 sxemacs \- Emacs Redefined
@@ -626,12 +626,12 @@ Lisp code is read at startup from the user's init file, which can be
 one of:
 
 \fB${XDG_CONFIG_HOME}/sxemacs/init.el\fP
-
+.br
 \fB${HOME}/.config/sxemacs/init.el\fP
-
+.br
 \fB${HOME}/.sxemacs/init.el\fP
 
-/usr/local/share/info - files for the Info documentation browser
+\fB${PREFIX}/share/info\fP - files for the Info documentation browser
 (a subsystem of
 .IR SXEmacs )
 to refer to.  The complete text of the
@@ -640,16 +640,16 @@ and the
 .I SXEmacs Lisp Programmer's Manual
 is included in a convenient tree structured form.
 
-$PREFIX/share/sxemacs-$VERSION/lisp/* - Lisp source files and compiled files
+\fB${PREFIX}/share/sxemacs-$VERSION/lisp/*\fP - Lisp source files and compiled files
 that define most editing commands.
 
-$PREFIX/share/sxemacs-$VERSION/etc - some files of information, pixmap
+\fB${PREFIX}/share/sxemacs-$VERSION/etc\fP - some files of information, pixmap
 files, other data files used by certain packages, etc.
 
-$PREFIX/lib/sxemacs-$VERSION/$CONFIGURATION - various programs that are used
+\fB${PREFIX}/lib/sxemacs-$VERSION/$CONFIGURATION\fP - various programs that are used
 with SXEmacs.
 
-$PREFIX/lib/sxemacs-$VERSION/$CONFIGURATION/DOC -
+\fB${PREFIX}/lib/sxemacs-$VERSION/$CONFIGURATION/DOC\fP -
 contains the documentation strings for the Lisp primitives and
 preloaded Lisp functions of \fISXEmacs\fP.
 They are stored here to reduce the size of \fISXEmacs\fP proper.
@@ -657,15 +657,21 @@ They are stored here to reduce the size of \fISXEmacs\fP proper.
 \fISXEmacs\fP can use the \fIXEmacs\fP package infrastructure and it
 searches for packages in these places by default...
 
-$HOME/.sxemacs/site-packages
-$HOME/.sxemacs/xemacs-packages
-$HOME/.sxemacs/mule-packages
-$HOME/.sxemacs/sxemacs-packages
+\fB${XDG_DATA_HOME}/sxemacs/site-packages\fP
+.br
+\fB${XDG_DATA_HOME}/sxemacs/xemacs-packages\fP
+.br
+\fB${XDG_DATA_HOME}/sxemacs/mule-packages\fP
+.br
+\fB${XDG_DATA_HOME}/sxemacs/sxemacs-packages\fP
 
-$PREFIX/share/sxemacs/site-packages
-$PREFIX/share/sxemacs/xemacs-packages
-$PREFIX/share/sxemacs/mule-packages
-$PREFIX/share/sxemacs/sxemacs-packages
+\fB${PREFIX}/share/sxemacs/site-packages\fP
+.br
+\fB${PREFIX}/share/sxemacs/xemacs-packages\fP
+.br
+\fB${PREFIX}/share/sxemacs/mule-packages\fP
+.br
+\fB${PREFIX}/share/sxemacs/sxemacs-packages\fP
 
 
 .PP

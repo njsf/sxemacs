@@ -5815,7 +5815,7 @@ document?
 The package @code{ps-print}, which is now included with SXEmacs, provides
 the ability to do this.  The source code contains complete instructions
 on its use, in
-@file{$prefix/lib/sxemacs/xemacs-packages/lisp/ps-print/ps-print.el},
+@file{$prefix/share/sxemacs/xemacs-packages/lisp/ps-print/ps-print.el},
 being the default location of an installed ps-print package.
 
 
