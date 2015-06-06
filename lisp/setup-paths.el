@@ -233,7 +233,8 @@ down."
    ;; installed
    (t
     (paths-find-architecture-directory roots nil nil
-				       configure-doc-directory))))
+				       (or configure-doc-directory
+					   exec-directory)))))
 
 (defun paths-find-exec-directory (roots)
   "Find the binary directory."
