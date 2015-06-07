@@ -392,7 +392,6 @@ update_scrollbar_instance(struct window *w, int vertical,
 	int new_minimum = -1, new_maximum = -1;
 	int new_slider_size = -1, new_slider_position = -1;
 	int new_width = -1, new_height = -1, new_x = -1, new_y = -1;
-	struct window *new_window = 0;	/* #### currently unused */
 
 	end_pos = BUF_Z(b) - w->window_end_pos[CURRENT_DISP];
 	sb_pos = scrollbar_point(w, 0);
@@ -474,7 +473,6 @@ update_scrollbar_instance(struct window *w, int vertical,
 			new_slider_size = min((end_pos - start_pos),
 					      (new_maximum - new_minimum));
 			new_slider_position = sb_pos;
-			new_window = w;
 		}
 	} else if (!MINI_WINDOW_P(w)) {
 		/* The minus one is to account for the truncation glyph. */

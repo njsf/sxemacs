@@ -3285,6 +3285,7 @@ If no special topology is given, it defaults to the po topology.
 {
 	Lisp_Object result = Qnil;
 	Lisp_Object args[2] = {lower, upper};
+        (void)args;
 
 	CHECK_COMPARABLE(lower);
 	if (NILP(upper))

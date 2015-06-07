@@ -1523,7 +1523,6 @@ cl_loop_dllist_map_return(
 	Lisp_Object *result,
 	Lisp_Object(*fun)(Lisp_Object*, Lisp_Object), dllist_t dll)
 {
-	int state;
 	dllist_item_t item = dllist_first(dll);
 	Lisp_Object ret = Qnil;
 
@@ -1531,7 +1530,6 @@ cl_loop_dllist_map_return(
 		return Qnil;
 	}
 
-	state = 1;
 	while (item) {
 		ret = fun(result, (Lisp_Object)item->item);
 		item = item->next;
@@ -1588,6 +1586,7 @@ The Common Lisp loop macro.
 
 	/* now parse the stuff */
 	parse_result = cl_loop_yyparse(&args, lsen, &context, &token);
+	(void)parse_result;
 
 	UNGCPRO;
 	return loop_sentence;

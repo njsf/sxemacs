@@ -5455,6 +5455,8 @@ regenerate_window_extents_only_changed(struct window *w, Bufpos startp,
 		new_start =
 		    generate_display_line(w, ddl, 0, ddl->bufpos + ddl->offset,
 					  &prop, DESIRED_DISP);
+		(void)new_start; // Silence set-not-read warning.
+
 		ddl->offset = 0;
 
 		/* #### If there is propagated stuff the fail.  We could
@@ -5601,6 +5603,8 @@ regenerate_window_incrementally(struct window *w, Bufpos startp, Bufpos pointm)
 		new_start =
 		    generate_display_line(w, ddl, 0, ddl->bufpos + ddl->offset,
 					  &prop, DESIRED_DISP);
+		(void)new_start; // Silence set-not-read warning.
+
 		ddl->offset = 0;
 
 		/* If there is propagated stuff then it is pretty much a

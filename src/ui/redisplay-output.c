@@ -386,7 +386,6 @@ compare_display_blocks(struct window *w, struct display_line *cdl,
 	int start_pos;
 	int stop_pos;
 	int force = 0;
-	int block_end;
 
 	cdb = Dynarr_atp(cdl->display_blocks, c_block);
 	ddb = Dynarr_atp(ddl->display_blocks, d_block);
@@ -396,36 +395,12 @@ compare_display_blocks(struct window *w, struct display_line *cdl,
 	start_pos = -1;
 	stop_pos = min(Dynarr_length(cdb->runes), Dynarr_length(ddb->runes));
 
-	block_end = (!Dynarr_length(ddb->runes)
-		     ? 0
-		     : (Dynarr_atp(ddb->runes, Dynarr_length(ddb->runes) - 1)->
-			xpos + Dynarr_atp(ddb->runes,
-					  Dynarr_length(ddb->runes) -
-					  1)->width));
-
 	/* If the new block type is not text and the cursor status is
 	   changing and it overlaps the position of this block then force a
 	   full redraw of the block in order to make sure that the cursor is
 	   updated properly. */
-	if (ddb->type != TEXT
-#if 0
-	    /* I'm not sure exactly what this code wants to do, but it's
-	     * not right--it doesn't update when cursor_elt changes from, e.g.,
-	     * 0 to 8, and the new or old cursor loc overlaps this block.
-	     * I've replaced it with the more conservative test below.
-	     * -dkindred@cs.cmu.edu 23-Mar-1997 */
-	    && ((cdl->cursor_elt == -1 && ddl->cursor_elt != -1)
-		|| (cdl->cursor_elt != -1 && ddl->cursor_elt == -1))
-	    && (ddl->cursor_elt == -1 ||
-		(cursor_start
-		 && cursor_width
-		 && (cursor_start + cursor_width) >= start_pixpos
-		 && cursor_start <= block_end))
-#else
-	    && (cdl->cursor_elt != ddl->cursor_elt)
-#endif
-	    )
-		force = 1;
+	if (ddb->type != TEXT && (cdl->cursor_elt != ddl->cursor_elt))
+	    force = 1;
 
 	if (f->windows_structure_changed ||
 	    /* #### Why is this so? We have face cachels so that we don't

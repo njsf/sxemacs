@@ -672,6 +672,7 @@ do {									\
   Lisp_Object GELL_elt, GELL_tail;					\
   EXTERNAL_LIST_LOOP_4_NO_DECLARE (GELL_elt, list, GELL_tail, len)	\
     ;									\
+  (void)GELL_elt;                                                       \
 } while (0)
 
 /* For a list that's known to be in valid list format, where we may
