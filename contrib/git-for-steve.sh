@@ -30,6 +30,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+echo "If you have any questions or concerns about how to contribute "
+echo "to SXEmacs, ask us on freenode channel #sxemacs"
 USER_EMAIL=$(git config user.email)
 if [ -z "$USER_EMAIL" ]; then
     echo "You need to setup your email address with:"
