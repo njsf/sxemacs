@@ -3537,6 +3537,7 @@ FILE *inf;
 
 	LOOP_ON_INPUT_LINES(inf, lb, dummy)
 	    continue;
+	(void)dummy; // Silence set-not-read warning.
 }
 
 /* Fortran parsing */
