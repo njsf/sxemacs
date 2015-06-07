@@ -46,11 +46,18 @@ if [ -z "$USER_NAME" ]; then
 fi
 git branch --track for-steve origin/master
 git checkout for-steve
+if ! type gpg > dev/null 2>&1 ; then
+    echo "MANDATORY: Please install gpg and create/install your private key."
+    exit 1
+fi
 echo ""
 SIGNKEY=$(git config user.signingkey)
 if [ -z "$SIGNKEY" ]; then
-    echo "OPTIONAL: You might wish to setup your GPG signing key:"
-    echo "    git config user.signingkey <GPG key signature>"
+    KEYGUESS=$(gpg --list-keys $USER_EMAIL |\
+               awk '/^pub/ { split($2,k,"/"); print k[2] }')
+    echo "You need to setup your GPG signing key:"
+    echo "    git config user.signingkey ${KEYGUESS:-<GPG key signature>}"
+    exit 1
 fi
 CO_ALIAS=$(git config alias.co)
 if [ -z "$CO_ALIAS" ]; then
