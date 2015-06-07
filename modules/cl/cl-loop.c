@@ -1588,6 +1588,7 @@ The Common Lisp loop macro.
 
 	/* now parse the stuff */
 	parse_result = cl_loop_yyparse(&args, lsen, &context, &token);
+	(void)parse_result;
 
 	UNGCPRO;
 	return loop_sentence;
