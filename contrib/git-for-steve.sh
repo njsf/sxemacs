@@ -67,6 +67,47 @@ if [ -z "$CO_ALIAS" ]; then
     echo "    git config alias.co checkout"
 fi
 REMOTE=$(git remote | grep -v origin)
+INITIALS=""
+for word in $(git config user.name); do
+  INITIALS="${INITIALS}$(echo $w | cut -c1)"
+done
+DEVKEYTAG=$(git show devkey.$INITIALS | grep Tagger | sed 's/^Tagger: //')
+EXPECTEDTAG="$USER_NAME <$USER_EMAIL>"
+if [ -z "$DEVKEYTAG" ]; then
+    echo "RECOMMENDED: It is recommended you tag (and push) your "
+    echo "             GPG public key as devkey.${INITIALS}:"
+    echo ""
+    echo "       git tag -s devkey.$INITIALS \ "
+    echo "               -m 'Public key for $USER_NAME <$USER_EMAIL>' \ "
+    echo "          $(gpg --armor --export $USER_EMAL | \ "
+    echo "            git hash-object -w --stdin)"
+    echo ""
+    echo "Don't forget to push the tag to your remote:"
+    echo "       git push <myremote> devkey.${INITIALS}"
+    exit 1
+elif [ "$DEVKEYTAG" != "EXPECTEDTAG" ]; then
+    LONGDEVKEYTAG=$(git show devkey.$INITIALS.$SIGNKEY | grep Tagger)
+    if [ -z "$LONGDEVKEYTAG" ]; then
+    echo "It seems there is someone else using your initials for a key:"
+    echo "       $DEVKEYTAG"
+    echo "RECOMMENDED: It is recommended you tag (and push) your "
+    echo "             GPG public key as devkey.${INITIALS}.${SIGNKEY}:"
+    echo ""
+    echo "       git tag -s devkey.${INITIALS}.${SIGNKEY} \ "
+    echo "               -m 'Public key for $USER_NAME <$USER_EMAIL>' \ "
+    echo "          $(gpg --armor --export $USER_EMAL | \ "
+    echo "            git hash-object -w --stdin)"
+    echo ""
+    echo "Don't forget to push the tag to your remote:"
+    echo "       git push <myremote> devkey.${INITIALS}.${SIGNKEY}"
+fi
+MAINTAINER=$(git show maintaner-pgp | grep Tagger | sed 's/^Tagger: //')
+if ! gpg list-keys "$MAINTAINER" > /devnull 2>&1 ; then
+    echo "RECOMMENDED: You should import the maintainers key to your "
+    echo "             key ring so you can verify objects on the repository"
+    echo "       git show maintainer-pgp | gpg --import"
+    echo ""
+fi
 if [ -z "$REMOTE" ]; then
     echo "MANDATORY: You now must configure your remote repository "
     echo "           location using:"
