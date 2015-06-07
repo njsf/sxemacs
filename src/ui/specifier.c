@@ -2497,6 +2497,7 @@ specifier_instance(Lisp_Object specifier, Lisp_Object matchspec,
 
 	/* device had better be determined by now; abort if not. */
 	tag = DEVICE_CLASS(XDEVICE(device));
+	(void)tag; // Silence set-not-read warning.
 
 	depth = make_int(1 + XINT(depth));
 	if (XINT(depth) > 20) {
